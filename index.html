@@ -1,0 +1,1784 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Peemy store - เช็คสถานะและอัปเดตการแก้ไขปัญหาบ้าน</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Anuphan:wght@300;400;500;600;700&family=Mali:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <script>
+        if (typeof tailwind !== 'undefined') {
+            tailwind.config = {
+                theme: {
+                    extend: {
+                        colors: {
+                            peemy: {
+                                cocoa: '#78443E',
+                                taupe: '#9F6963',
+                                blush: '#FFBFCA',
+                                pink: '#FCB1C3',
+                                butter: '#FCE5C2',
+                                ivory: '#F9F1DC',
+                                softbg: '#FFFBF5'
+                            }
+                        },
+                        fontFamily: {
+                            cute: ['Mali', 'cursive', 'sans-serif'],
+                            body: ['Anuphan', 'sans-serif']
+                        },
+                        boxShadow: {
+                            'princess': '0 10px 30px -5px rgba(120, 68, 62, 0.12), 0 4px 12px -2px rgba(252, 177, 195, 0.25)',
+                            'inner-soft': 'inset 0 2px 6px 0 rgba(120, 68, 62, 0.08)'
+                        }
+                    }
+                }
+            };
+        }
+    </script>
+
+    <style>
+        :root {
+            --peemy-cocoa: #78443E;
+            --peemy-taupe: #9F6963;
+            --peemy-blush: #FFBFCA;
+            --peemy-pink: #FCB1C3;
+            --peemy-butter: #FCE5C2;
+            --peemy-ivory: #F9F1DC;
+        }
+
+        body {
+            background-color: #F9F1DC;
+            background-image: 
+                radial-gradient(at 15% 15%, rgba(255, 191, 202, 0.35) 0px, transparent 50%),
+                radial-gradient(at 85% 80%, rgba(252, 229, 194, 0.6) 0px, transparent 50%),
+                radial-gradient(at 50% 50%, rgba(255, 251, 245, 0.8) 0px, transparent 70%);
+            color: #78443E;
+            font-family: 'Anuphan', sans-serif;
+            min-height: 100vh;
+            margin: 0;
+            overflow-x: hidden;
+        }
+
+        .font-cute {
+            font-family: 'Mali', cursive, sans-serif;
+        }
+
+        /* ข้อความวิ่ง (Marquee) */
+        .marquee-wrapper {
+            overflow: hidden;
+            white-space: nowrap;
+            position: relative;
+            mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+            -webkit-mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+        }
+
+        .marquee-content {
+            display: inline-block;
+            padding-left: 100%;
+            animation: marquee-scroll 22s linear infinite;
+        }
+
+        .marquee-wrapper:hover .marquee-content {
+            animation-play-state: paused;
+        }
+
+        @keyframes marquee-scroll {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(-100%, 0); }
+        }
+
+        /* กรอบลูกคุณหนู (Coquette Frame) */
+        .princess-card {
+            background: rgba(255, 253, 249, 0.94);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 2.5px solid #FFBFCA;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .princess-card:hover {
+            transform: translateY(-4px);
+            border-color: #FCB1C3;
+            box-shadow: 0 18px 35px -5px rgba(120, 68, 62, 0.16), 0 8px 16px -4px rgba(252, 177, 195, 0.45);
+        }
+
+        /* ช่องค้นหาสไตล์น่ารักละมุน ไม่แข็งทื่อ */
+        .cute-search-bar {
+            background: linear-gradient(180deg, #FFFFFF 0%, #FFF9FB 100%);
+            border: 2.5px solid #FFBFCA;
+            box-shadow: 0 10px 25px -5px rgba(252, 177, 195, 0.45), inset 0 2px 4px rgba(255, 255, 255, 0.9);
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .cute-search-bar:focus-within {
+            border-color: #9F6963;
+            transform: translateY(-2px);
+            box-shadow: 0 14px 30px -5px rgba(252, 177, 195, 0.65), 0 0 0 4px rgba(255, 191, 202, 0.35);
+        }
+
+        /* แถบหัวข้อเลขบ้านแบบมีลูกเล่นน่ารัก (ไม่ใช้เส้นประ) */
+        .cute-house-header {
+            background: linear-gradient(135deg, #FFFDF9 0%, #FFF3F7 55%, #FCE5C2 100%);
+            border: 2.5px solid #FFBFCA;
+            box-shadow: 0 12px 28px -6px rgba(120, 68, 62, 0.12), 0 4px 12px -2px rgba(252, 177, 195, 0.35), inset 0 0 0 4px rgba(255, 255, 255, 0.85);
+            position: relative;
+            overflow: hidden;
+        }
+        .cute-house-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, #FFBFCA, #FCE5C2, #FCB1C3);
+            pointer-events: none;
+        }
+
+        /* ป้ายชื่อเลขบ้านด้านบน */
+        .house-title-badge {
+            background: linear-gradient(135deg, #FFFFFF 0%, #FFF0F5 100%);
+            border: 2px solid #FCB1C3;
+            box-shadow: 0 6px 16px -3px rgba(252, 177, 195, 0.55), inset 0 2px 4px rgba(255, 255, 255, 0.9);
+        }
+
+        /* สถานะการ์ดเพิ่มลูกเล่นกรอบสีกระพริบเรืองแสงนุ่มนวล (Glowing / Blinking Frame) */
+        @keyframes pulseGlowGreen {
+            0%, 100% {
+                border-color: #68D391;
+                box-shadow: 0 12px 26px -8px rgba(104, 211, 145, 0.32), 0 0 0 0px rgba(104, 211, 145, 0.35), inset 0 0 0 4px #FFFFFF, inset 0 0 18px rgba(104, 211, 145, 0.12);
+            }
+            50% {
+                border-color: #34D399;
+                box-shadow: 0 14px 32px -4px rgba(52, 211, 153, 0.65), 0 0 16px 3px rgba(110, 231, 183, 0.45), inset 0 0 0 4px #FFFFFF, inset 0 0 26px rgba(52, 211, 153, 0.25);
+            }
+        }
+
+        @keyframes pulseGlowOrange {
+            0%, 100% {
+                border-color: #F6AD55;
+                box-shadow: 0 12px 26px -8px rgba(246, 173, 85, 0.32), 0 0 0 0px rgba(246, 173, 85, 0.35), inset 0 0 0 4px #FFFFFF, inset 0 0 18px rgba(246, 173, 85, 0.12);
+            }
+            50% {
+                border-color: #F59E0B;
+                box-shadow: 0 14px 32px -4px rgba(245, 158, 11, 0.65), 0 0 16px 3px rgba(252, 211, 77, 0.48), inset 0 0 0 4px #FFFFFF, inset 0 0 26px rgba(245, 158, 11, 0.25);
+            }
+        }
+
+        @keyframes pulseGlowRed {
+            0%, 100% {
+                border-color: #FC8181;
+                box-shadow: 0 12px 26px -8px rgba(252, 129, 129, 0.32), 0 0 0 0px rgba(252, 129, 129, 0.35), inset 0 0 0 4px #FFFFFF, inset 0 0 18px rgba(252, 129, 129, 0.12);
+            }
+            50% {
+                border-color: #F43F5E;
+                box-shadow: 0 14px 32px -4px rgba(244, 63, 94, 0.68), 0 0 16px 3px rgba(252, 165, 165, 0.52), inset 0 0 0 4px #FFFFFF, inset 0 0 26px rgba(244, 63, 94, 0.28);
+            }
+        }
+
+        .status-frame-green {
+            background: linear-gradient(145deg, #FFFFFF 0%, #F2FDF7 100%);
+            border: 2.5px solid #68D391;
+            animation: pulseGlowGreen 2.4s infinite ease-in-out;
+        }
+        .status-badge-green {
+            background: linear-gradient(135deg, #ECFDF5 0%, #D1FAE5 100%);
+            color: #065F46;
+            border: 1.5px solid #6EE7B7;
+            box-shadow: 0 2px 6px rgba(16, 185, 129, 0.15);
+        }
+
+        .status-frame-orange {
+            background: linear-gradient(145deg, #FFFFFF 0%, #FFFDF5 100%);
+            border: 2.5px solid #F6AD55;
+            animation: pulseGlowOrange 2.2s infinite ease-in-out;
+        }
+        .status-badge-orange {
+            background: linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%);
+            color: #92400E;
+            border: 1.5px solid #FCD34D;
+            box-shadow: 0 2px 6px rgba(245, 158, 11, 0.15);
+        }
+
+        .status-frame-red {
+            background: linear-gradient(145deg, #FFFFFF 0%, #FFF7F7 100%);
+            border: 2.5px solid #FC8181;
+            animation: pulseGlowRed 1.9s infinite ease-in-out;
+        }
+        .status-badge-red {
+            background: linear-gradient(135deg, #FEF2F2 0%, #FEE2E2 100%);
+            color: #991B1B;
+            border: 1.5px solid #FCA5A5;
+            box-shadow: 0 2px 6px rgba(239, 68, 68, 0.15);
+        }
+    </style>
+</head>
+<body class="selection:bg-peemy-pink selection:text-peemy-cocoa pb-24">
+
+    <!-- แถบแจ้งสถานะเมื่ออยู่ในโหมดแอดมิน (ซ่อนอัตโนมัติเมื่อเป็นลูกค้าทั่วไป) -->
+    <div id="adminActiveTopBar" class="hidden sticky top-0 z-40 bg-[#78443E]/95 backdrop-blur-md text-[#F9F1DC] border-b-2 border-[#FFBFCA] shadow-md">
+        <div class="max-w-4xl mx-auto px-4 py-2 flex flex-wrap items-center justify-between gap-2 text-xs sm:text-sm">
+            <div class="flex items-center gap-2">
+                <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-[#FCB1C3] text-[#78443E] font-bold text-xs shadow-sm">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                </span>
+                <span class="font-cute font-semibold text-[#FCE5C2]">สถานะหลังบ้าน:</span>
+                <span id="currentRoleBadge" class="px-3 py-0.5 rounded-full bg-[#F9F1DC] text-[#78443E] font-cute font-bold text-xs shadow-sm">
+                    💖 แอดมินหลัก
+                </span>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                <button onclick="openSiteSettingsModal()" class="main-admin-only hidden px-3 py-1 rounded-full font-cute font-bold transition-all bg-[#FCE5C2] hover:bg-[#FCB1C3] text-[#78443E] text-xs shadow-sm">
+                    <i class="fa-solid fa-image mr-1"></i>ตั้งค่าแบนเนอร์/ข้อความวิ่ง
+                </button>
+                <button onclick="openAccessControlModal()" id="btnManageAccess" class="main-admin-only hidden px-3 py-1 rounded-full font-cute font-bold transition-all bg-amber-300 hover:bg-amber-200 text-[#78443E] text-xs shadow-sm">
+                    <i class="fa-solid fa-user-lock mr-1"></i>จัดการสิทธิ์แอดมินรอง
+                </button>
+                <button onclick="switchRole('customer')" class="px-3 py-1 rounded-full font-cute font-bold transition-all bg-red-100 hover:bg-red-200 text-red-700 text-xs">
+                    <i class="fa-solid fa-right-from-bracket mr-1"></i>ออกจากระบบแอดมิน
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- คอนเทนเนอร์หลักของเว็บไซต์ -->
+    <main class="max-w-4xl mx-auto px-4 sm:px-6 pt-5 sm:pt-8">
+
+        <!-- ========================================== -->
+        <!-- หน้าที่ 1: หน้าหลักตามแบบร่างที่ 1 (HOME VIEW) -->
+        <!-- ========================================== -->
+        <section id="homeView" class="space-y-6 sm:space-y-8 transition-all duration-300">
+
+            <!-- [องค์ประกอบที่ 1]: ชื่อร้าน Peemy store (ซ้าย) + ข้อความวิ่ง (ขวา) -->
+            <header class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-6 bg-white/85 backdrop-blur-md p-4 sm:px-6 sm:py-4 rounded-3xl border-2 border-[#FFBFCA] shadow-princess">
+                <div class="flex items-center justify-between">
+                    <a href="javascript:void(0)" onclick="showHomeView()" class="flex items-center gap-3 group">
+                        <div class="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl overflow-hidden border-2 border-[#FCB1C3] shadow-sm flex-shrink-0 bg-[#FCE5C2]">
+                            <img id="headerLogoImg" src="https://i.postimg.cc/1tyKNqzY/att-0t-Oq-CDXy8sg-Ea-Imu8-vz7m-TR1DWc-J92z-Uogv-Gzw-O0Lw.jpg" 
+                                 alt="Peemy store logo" 
+                                 class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                                 onerror="this.src='https://placehold.co/120x120/FCB1C3/78443E?text=Peemy'">
+                        </div>
+                        <div>
+                            <h1 class="font-cute font-bold text-2xl sm:text-3xl text-[#78443E] tracking-tight flex items-center gap-1">
+                                Peemy st<span class="text-[#FCB1C3] inline-block transform hover:scale-125 transition-transform">♡</span>re
+                            </h1>
+                            <p class="text-[11px] sm:text-xs text-[#9F6963] font-medium">ระบบเช็คสถานะและอัปเดตการแก้ไขปัญหาบ้าน</p>
+                        </div>
+                    </a>
+
+                    <!-- ปุ่มฟันเฟืองสำหรับเข้าหลังบ้าน (บนมือถือ) -->
+                    <button onclick="openGearPortalModal()" title="ระบบหลังบ้านแอดมิน" class="sm:hidden w-9 h-9 rounded-full bg-[#F9F1DC] hover:bg-[#FCB1C3] text-[#78443E] border border-[#FFBFCA] flex items-center justify-center shadow-sm transition-all">
+                        <i class="fa-solid fa-gear text-sm"></i>
+                    </button>
+                </div>
+
+                <!-- กรอบข้อความวิ่ง -->
+                <div class="flex-1 flex items-center gap-2 bg-[#F9F1DC]/90 border border-[#FFBFCA] rounded-2xl px-3.5 py-2 shadow-inner-soft overflow-hidden">
+                    <span class="flex-shrink-0 inline-flex items-center justify-center w-6 h-6 rounded-full bg-[#FCB1C3]/40 text-[#78443E] text-xs">
+                        <i class="fa-solid fa-bullhorn"></i>
+                    </span>
+                    <div class="marquee-wrapper flex-1 text-xs sm:text-sm font-cute font-medium text-[#78443E]">
+                        <div id="marqueeTextDisplay" class="marquee-content">
+                            🎀 ยินดีต้อนรับสู่ Peemy store ค่ะ ลูกค้าสามารถพิมพ์ค้นหา "เลขบ้าน" ของตัวเองเพื่อเช็คสถานะการแก้ไขปัญหาแบบเรียลไทม์ได้เลยนะคะ 💖 หากพบปัญหาเพิ่มเติมทักหาแอดมินได้ตลอดเวลาเลยน้า 🌷✨
+                        </div>
+                    </div>
+                    <button onclick="openSiteSettingsModal()" title="แก้ไขข้อความวิ่งและแบนเนอร์" class="main-admin-only hidden flex-shrink-0 px-2.5 py-1 rounded-xl bg-[#78443E] text-[#F9F1DC] hover:bg-[#9F6963] text-xs font-cute font-bold transition-colors shadow-sm">
+                        <i class="fa-solid fa-wand-magic-sparkles mr-1"></i>ตั้งค่าเว็บ
+                    </button>
+                </div>
+            </header>
+
+            <!-- [องค์ประกอบที่ 2]: รูปแบนเนอร์สะอาดตา -->
+            <div class="relative group rounded-[2rem] p-2 sm:p-3 bg-gradient-to-b from-white via-[#F9F1DC] to-[#FCE5C2] border-2 border-[#FFBFCA] shadow-princess overflow-hidden">
+                <button onclick="openSiteSettingsModal()" class="main-admin-only hidden absolute top-5 right-5 z-20 px-4 py-2 rounded-full bg-[#78443E]/90 hover:bg-[#78443E] text-[#F9F1DC] text-xs sm:text-sm font-cute font-bold shadow-lg backdrop-blur-sm transition-all flex items-center gap-2 border border-[#FFBFCA]">
+                    <i class="fa-solid fa-camera-rotate"></i> เปลี่ยนรูปแบนเนอร์
+                </button>
+
+                <div class="relative w-full h-48 sm:h-72 md:h-80 rounded-[1.5rem] overflow-hidden bg-[#FCE5C2]/60 border border-[#FCB1C3]/40">
+                    <img id="mainBannerImg" 
+                         src="https://i.postimg.cc/1tyKNqzY/att-0t-Oq-CDXy8sg-Ea-Imu8-vz7m-TR1DWc-J92z-Uogv-Gzw-O0Lw.jpg" 
+                         alt="Peemy store Banner" 
+                         class="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-[1.02]"
+                         onerror="this.src='https://placehold.co/1200x480/FFBFCA/78443E?text=Peemy+Store+Banner'">
+                </div>
+            </div>
+
+            <!-- [องค์ประกอบที่ 3]: ช่องค้นหา -->
+            <div class="max-w-xl mx-auto pt-1">
+                <div class="text-center mb-3">
+                    <label for="houseSearchInput" class="font-cute font-bold text-sm sm:text-base text-[#78443E] inline-flex items-center gap-2 bg-white/85 px-4 py-1.5 rounded-full border border-[#FFBFCA] shadow-sm">
+                        <span class="text-base">🎀</span> ค้นหาเลขบ้านของคุณเพื่อดูประวัติการแก้ไขปัญหา <span class="text-base">🔍</span>
+                    </label>
+                </div>
+
+                <form onsubmit="handleHouseSearch(event)" class="cute-search-bar relative flex items-center rounded-full p-2 pl-4 sm:pl-5">
+                    <span class="w-9 h-9 rounded-full bg-[#FFBFCA]/50 text-[#78443E] flex items-center justify-center flex-shrink-0 mr-2.5 shadow-inner-soft">
+                        <i class="fa-solid fa-heart text-[#9F6963] text-sm"></i>
+                    </span>
+                    <input type="text" 
+                           id="houseSearchInput" 
+                           placeholder="พิมพ์เลขบ้านของคุณที่นี่เลยนะคะ..." 
+                           autocomplete="off"
+                           oninput="handleSearchSuggestions(this.value)"
+                           class="w-full bg-transparent text-[#78443E] placeholder-[#9F6963]/70 font-cute font-semibold text-sm sm:text-base focus:outline-none py-2">
+                    <button type="button" id="clearSearchBtn" onclick="clearSearchInput()" class="hidden text-[#9F6963] hover:text-[#78443E] px-2">
+                        <i class="fa-solid fa-circle-xmark"></i>
+                    </button>
+                    <button type="submit" class="flex-shrink-0 bg-gradient-to-r from-[#FCB1C3] via-[#FFBFCA] to-[#FCB1C3] hover:from-[#78443E] hover:to-[#9F6963] text-[#78443E] hover:text-[#F9F1DC] font-cute font-bold text-xs sm:text-sm px-5 sm:px-7 py-2.5 sm:py-3 rounded-full border-2 border-white shadow-md transition-all flex items-center gap-1.5">
+                        <span>ค้นหาบ้าน</span>
+                        <i class="fa-solid fa-wand-magic-sparkles text-xs"></i>
+                    </button>
+                </form>
+
+                <!-- กล่องแสดงผลการค้นหาด่วน -->
+                <div id="searchSuggestionsBox" class="hidden mt-2.5 bg-white/95 backdrop-blur-md rounded-3xl border-2 border-[#FFBFCA] shadow-princess p-3 space-y-1.5">
+                </div>
+            </div>
+
+            <!-- [ส่วนพิเศษสำหรับแอดมิน]: แผงจัดการบ้านทั้งหมด -->
+            <div id="adminAllHousesSection" class="hidden bg-white/90 backdrop-blur-md rounded-[2rem] p-5 sm:p-6 border-2 border-[#FFBFCA] shadow-princess space-y-4">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#FFBFCA] pb-3">
+                    <div>
+                        <div class="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-[#FCB1C3]/40 text-[#78443E] text-xs font-cute font-bold mb-1">
+                            <i class="fa-solid fa-crown"></i> แผงจัดการบ้านทั้งหมด (สำหรับแอดมิน)
+                        </div>
+                        <h2 class="font-cute font-bold text-lg sm:text-xl text-[#78443E]">
+                            รายการบ้านทั้งหมดในระบบ (<span id="totalHousesCount">0</span> บ้าน)
+                        </h2>
+                        <p class="text-xs text-[#9F6963]">คลิกที่การ์ดบ้านเพื่อดูไทม์ไลน์หรืออัปเดตสถานะปัญหาได้เลยค่ะ</p>
+                    </div>
+
+                    <div class="flex items-center gap-2">
+                        <button onclick="openAddHouseModal()" class="main-admin-only hidden px-4 py-2.5 rounded-2xl bg-[#78443E] hover:bg-[#9F6963] text-[#F9F1DC] font-cute font-bold text-xs sm:text-sm shadow-sm transition-all flex items-center gap-2">
+                            <i class="fa-solid fa-plus-circle text-[#FCB1C3]"></i> เพิ่มบ้านใหม่
+                        </button>
+                    </div>
+                </div>
+
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 pt-1">
+                    <!-- ช่องค้นหาบ้านด่วนสำหรับแอดมิน -->
+                    <div class="relative flex-1 max-w-sm">
+                        <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-[#9F6963] pointer-events-none">
+                            <i class="fa-solid fa-magnifying-glass text-xs"></i>
+                        </span>
+                        <input type="text"
+                               id="adminHouseSearchInput"
+                               oninput="handleAdminHouseSearch(this.value)"
+                               placeholder="ค้นหาเลขบ้านเพื่อแก้ไขด่วน..."
+                               autocomplete="off"
+                               class="w-full pl-9 pr-8 py-2 rounded-full bg-[#FFFDF9] border-2 border-[#FFBFCA] focus:border-[#78443E] focus:outline-none text-xs sm:text-sm font-cute font-semibold text-[#78443E] placeholder-[#9F6963]/70 shadow-inner-soft transition-all">
+                        <button type="button" id="clearAdminSearchBtn" onclick="clearAdminHouseSearch()" class="hidden absolute inset-y-0 right-0 pr-3 flex items-center text-[#9F6963] hover:text-[#78443E]">
+                            <i class="fa-solid fa-circle-xmark text-xs"></i>
+                        </button>
+                    </div>
+
+                    <div class="flex flex-wrap items-center gap-1.5 sm:gap-2 text-xs">
+                        <span class="font-semibold text-[#9F6963] mr-1">กรองสถานะ:</span>
+                        <button onclick="filterAdminHouses('ALL')" id="filterBtn_ALL" class="px-3 py-1 rounded-full bg-[#78443E] text-[#F9F1DC] font-bold transition-all">ทั้งหมด</button>
+                        <button onclick="filterAdminHouses('RED')" id="filterBtn_RED" class="px-3 py-1 rounded-full bg-[#F9F1DC] hover:bg-red-100 text-[#78443E] border border-[#FFBFCA] transition-all">🔴 พบปัญหา</button>
+                        <button onclick="filterAdminHouses('ORANGE')" id="filterBtn_ORANGE" class="px-3 py-1 rounded-full bg-[#F9F1DC] hover:bg-amber-100 text-[#78443E] border border-[#FFBFCA] transition-all">🟠 กำลังแก้ไข</button>
+                        <button onclick="filterAdminHouses('GREEN')" id="filterBtn_GREEN" class="px-3 py-1 rounded-full bg-[#F9F1DC] hover:bg-emerald-100 text-[#78443E] border border-[#FFBFCA] transition-all">🟢 ใช้งานปกติ</button>
+                    </div>
+                </div>
+
+                <div id="adminHousesGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3.5 pt-1">
+                </div>
+            </div>
+
+            <!-- [องค์ประกอบที่ 4]: กรอบรูปภาพหน้าหลัก 4 ช่อง -->
+            <div class="pt-1">
+                <div class="main-admin-only hidden text-right mb-2 px-1">
+                    <span class="inline-block text-xs text-[#78443E] bg-[#FCE5C2]/90 px-3 py-1 rounded-full border border-[#FFBFCA] font-cute font-bold">
+                        💡 แอดมินหลัก: กดปุ่ม "เปลี่ยนรูป" บนมุมขวาของแต่ละกรอบได้ค่ะ (ขนาดแนะนำ 800 x 800 px อัตราส่วน 1:1)
+                    </span>
+                </div>
+
+                <div id="showcaseGrid" class="grid grid-cols-2 gap-3.5 sm:gap-6">
+                </div>
+            </div>
+
+        </section>
+
+        <!-- ======================================================== -->
+        <!-- หน้าที่ 2: หน้าประวัติการแก้ไขปัญหาตามแบบร่างที่ 2 (DETAIL VIEW) -->
+        <!-- ======================================================== -->
+        <section id="houseDetailView" class="hidden space-y-6 sm:space-y-8 transition-all duration-300">
+
+            <!-- แถบหัวข้อเลขบ้าน ปรับให้อยู่ตรงกลางสวยงามตามจุดที่วงสีเหลือง -->
+            <div class="flex items-center gap-3 sm:gap-4">
+                <button onclick="showHomeView()" 
+                        title="กลับหน้าค้นหาหลัก"
+                        class="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gradient-to-b from-white to-[#F9F1DC] hover:from-[#FCB1C3] hover:to-[#FFBFCA] text-[#78443E] border-2 border-[#FFBFCA] shadow-princess flex items-center justify-center flex-shrink-0 transition-all hover:scale-105 active:scale-95">
+                    <i class="fa-solid fa-chevron-left text-base sm:text-lg font-bold"></i>
+                </button>
+
+                <div class="cute-house-header flex-1 rounded-[1.75rem] py-3.5 sm:py-4 px-4 sm:px-6 flex flex-col items-center justify-center gap-2 text-center">
+                    <div class="flex flex-wrap items-center justify-center gap-2.5 z-10">
+                        <div class="house-title-badge inline-flex items-center gap-2.5 px-4 sm:px-5 py-1.5 rounded-full">
+                            <span class="w-7 h-7 rounded-full bg-gradient-to-br from-[#FCB1C3] to-[#FFBFCA] text-[#78443E] flex items-center justify-center text-xs shadow-sm">
+                                <i class="fa-solid fa-house-chimney-heart"></i>
+                            </span>
+                            <span id="detailHouseTitlePill" class="text-[#78443E] font-cute font-bold text-base sm:text-xl tracking-tight">
+                                เลขบ้าน 10.10
+                            </span>
+                            <span class="text-sm select-none">🎀</span>
+                        </div>
+                        <span id="detailHouseServiceTag" class="inline-flex items-center gap-1.5 text-xs font-cute font-semibold text-[#9F6963] bg-white/95 px-3.5 py-1.5 rounded-full border border-[#FFBFCA] shadow-sm">
+                            <i class="fa-solid fa-wand-magic-sparkles text-[#FCB1C3]"></i>
+                            <span id="detailHouseServiceText">YouTube Premium Family</span>
+                        </span>
+                    </div>
+
+                    <div class="admin-only hidden flex flex-wrap items-center justify-center gap-2 z-10 pt-0.5">
+                        <button onclick="openAddUpdateModal()" class="px-4 py-1.5 rounded-full bg-[#78443E] hover:bg-[#9F6963] text-[#F9F1DC] font-cute font-bold text-xs sm:text-sm shadow-sm transition-all flex items-center gap-1.5">
+                            <i class="fa-solid fa-plus-circle text-[#FCB1C3]"></i> อัปเดตสถานะปัญหา
+                        </button>
+                        <button onclick="deleteCurrentHouse()" class="main-admin-only hidden px-3 py-1.5 rounded-full bg-red-100 hover:bg-red-200 text-red-700 font-cute font-bold text-xs transition-all border border-red-300" title="ลบบ้านนี้">
+                            <i class="fa-solid fa-trash-can"></i> ลบบ้าน
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- แผงอัปเดตด่วนสำหรับแอดมิน -->
+            <div id="adminQuickUpdatePanel" class="admin-only hidden bg-gradient-to-r from-[#FCE5C2]/80 via-white to-[#FFBFCA]/35 rounded-3xl p-4 sm:p-5 border-2 border-[#FFBFCA] shadow-sm">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-2xl bg-[#FCB1C3] flex items-center justify-center text-[#78443E] text-lg shadow-sm">
+                            <i class="fa-solid fa-pen-fancy"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-cute font-bold text-sm sm:text-base text-[#78443E]">
+                                โหมดแอดมิน: บันทึกการอัปเดตปัญหาของบ้านนี้
+                            </h3>
+                            <p class="text-xs text-[#9F6963]">
+                                รายการที่กดอัปเดตใหม่จะถูกจัดเรียงขึ้นแสดงบนสุดให้อัตโนมัติค่ะ
+                            </p>
+                        </div>
+                    </div>
+                    <button onclick="openAddUpdateModal()" class="px-5 py-2.5 rounded-2xl bg-[#78443E] hover:bg-[#9F6963] text-[#F9F1DC] font-cute font-bold text-xs sm:text-sm shadow-md transition-all flex-shrink-0">
+                        + เพิ่มรายการอัปเดตใหม่
+                    </button>
+                </div>
+            </div>
+
+            <!-- ไทม์ไลน์การ์ดสถานะ -->
+            <div class="relative bg-white/75 backdrop-blur-md rounded-[2.25rem] p-4 sm:p-8 border-2 border-[#FFBFCA] shadow-princess">
+                <div id="houseTimelineContainer" class="space-y-5 sm:space-y-6">
+                </div>
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- ฟุตเตอร์ -->
+    <footer class="max-w-4xl mx-auto px-4 mt-12 text-center text-xs text-[#9F6963] space-y-1">
+        <p class="font-cute font-semibold text-[#78443E]">🎀 Peemy store — ระบบติดตามสถานะบ้านและดูแลลูกค้า 🎀</p>
+    </footer>
+
+    <!-- ปุ่มฟันเฟืองลอยมุมขวาล่าง สำหรับเข้าระบบหลังบ้านแยกแอดมินหลัก/แอดมินรองชัดเจน -->
+    <button onclick="openGearPortalModal()" 
+            title="ตั้งค่าระบบหลังบ้าน (สำหรับแอดมิน)"
+            class="fixed bottom-5 right-5 z-40 w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-white/95 hover:bg-[#FCB1C3] text-[#78443E] border-2 border-[#FFBFCA] shadow-princess flex items-center justify-center transition-all hover:scale-110 active:scale-95 group">
+        <i id="gearFloatingIcon" class="fa-solid fa-gear text-lg sm:text-xl text-[#78443E] group-hover:rotate-90 transition-transform duration-500"></i>
+        <span id="gearActiveDot" class="hidden absolute top-0.5 right-0.5 w-3.5 h-3.5 rounded-full bg-emerald-400 border-2 border-white"></span>
+    </button>
+
+    <!-- 0. ป๊อปอัพดูรูปภาพหน้าหลักแบบเต็ม (เอาปุ่มปิดหน้าต่างด้านล่างที่วงสีน้ำเงินออกแล้ว) -->
+    <div id="imageLightboxModal" onclick="if(event.target === this) closeModal('imageLightboxModal')" class="fixed inset-0 z-50 hidden items-center justify-center bg-[#78443E]/65 backdrop-blur-md p-4">
+        <div class="relative bg-gradient-to-b from-white via-[#F9F1DC] to-[#FCE5C2] border-[3px] border-[#FFBFCA] rounded-[2.25rem] max-w-lg w-full p-3.5 sm:p-5 shadow-2xl transition-all">
+            <div class="flex items-center justify-between px-2 pb-3">
+                <div class="flex items-center gap-2">
+                    <span class="text-base">🎀</span>
+                    <span class="font-cute font-bold text-xs sm:text-sm text-[#78443E]">Peemy store Gallery</span>
+                </div>
+                <button onclick="closeModal('imageLightboxModal')" class="w-8 h-8 rounded-full bg-[#FFBFCA]/60 hover:bg-[#FCB1C3] text-[#78443E] flex items-center justify-center transition-colors">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="rounded-[1.5rem] overflow-hidden bg-white border-2 border-[#FCB1C3]/60 shadow-inner-soft">
+                <img id="lightboxPreviewImg" src="" alt="Full preview" class="w-full max-h-[75vh] object-contain mx-auto">
+            </div>
+        </div>
+    </div>
+
+    <!-- 1. ป๊อปอัปปุ่มฟันเฟือง: ศูนย์เข้าระบบหลังบ้าน -->
+    <div id="gearPortalModal" onclick="if(event.target === this) closeModal('gearPortalModal')" class="fixed inset-0 z-50 hidden items-center justify-center bg-[#78443E]/60 backdrop-blur-sm p-4">
+        <div class="bg-[#F9F1DC] border-2 border-[#FCB1C3] rounded-[2rem] max-w-lg w-full p-6 shadow-2xl space-y-5 max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between border-b border-[#FFBFCA] pb-3">
+                <h3 class="font-cute font-bold text-lg text-[#78443E] flex items-center gap-2">
+                    <i class="fa-solid fa-gear text-[#9F6963]"></i> ระบบจัดการหลังบ้าน Peemy store
+                </h3>
+                <button onclick="closeModal('gearPortalModal')" class="w-8 h-8 rounded-full bg-white text-[#78443E] hover:bg-[#FCB1C3] flex items-center justify-center">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="bg-white/90 rounded-2xl p-3.5 border border-[#FFBFCA] flex items-center justify-between">
+                <div class="text-xs sm:text-sm font-cute">
+                    <span class="text-[#9F6963]">สถานะปัจจุบันของคุณ:</span>
+                    <span id="portalCurrentRoleText" class="font-bold text-[#78443E] ml-1">👀 ลูกค้าทั่วไป (ดูได้อย่างเดียว)</span>
+                </div>
+                <button id="portalLogoutBtn" onclick="switchRole('customer'); closeModal('gearPortalModal');" class="hidden px-3 py-1 rounded-full bg-red-100 hover:bg-red-200 text-red-700 font-cute font-bold text-xs">
+                    ออกจากระบบ
+                </button>
+            </div>
+
+            <div class="space-y-2.5">
+                <p class="font-cute font-bold text-xs sm:text-sm text-[#78443E]">🔐 เลือกเข้าสู่ระบบตามสิทธิ์ของคุณ:</p>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div class="bg-gradient-to-b from-white to-[#FFBFCA]/25 rounded-2xl p-4 border-2 border-[#FCB1C3] flex flex-col justify-between space-y-3 shadow-sm">
+                        <div class="space-y-1">
+                            <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#FCB1C3]/60 text-[#78443E] font-cute font-bold text-xs">
+                                💖 แอดมินหลัก (เจ้าของร้าน)
+                            </div>
+                            <p class="text-[11px] text-[#9F6963] leading-relaxed pt-1">
+                                • เห็นบ้านทั้งหมด / เพิ่ม-ลบบ้านได้<br>
+                                • เปลี่ยนรูปแบนเนอร์ ข้อความวิ่ง และรูป 4 ช่อง<br>
+                                • <strong>เปลี่ยนรหัส/ตัดสิทธิ์แอดมินรอง</strong>ได้ทันที
+                            </p>
+                        </div>
+                        <button onclick="closeModal('gearPortalModal'); openLoginModal('main_admin');" class="w-full py-2.5 rounded-xl bg-[#78443E] hover:bg-[#9F6963] text-[#F9F1DC] font-cute font-bold text-xs shadow-sm transition-all">
+                            เข้าหลังบ้านแอดมินหลัก
+                        </button>
+                    </div>
+
+                    <div class="bg-white rounded-2xl p-4 border-2 border-[#FFBFCA] flex flex-col justify-between space-y-3 shadow-sm">
+                        <div class="space-y-1">
+                            <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#FCE5C2] text-[#78443E] font-cute font-bold text-xs">
+                                🤍 แอดมินสำรอง (ผู้ช่วย)
+                            </div>
+                            <p class="text-[11px] text-[#9F6963] leading-relaxed pt-1">
+                                • มองเห็นรายการบ้านทั้งหมด<br>
+                                • <strong>อัปเดตสถานะปัญหา 🔴🟠🟢</strong> ของแต่ละบ้านได้อย่างเดียว<br>
+                                • ไม่สามารถลบบ้านหรือแก้หน้าเว็บได้
+                            </p>
+                        </div>
+                        <button onclick="closeModal('gearPortalModal'); openLoginModal('sub_admin');" class="w-full py-2.5 rounded-xl bg-[#FCB1C3] hover:bg-[#FFBFCA] text-[#78443E] font-cute font-bold text-xs shadow-sm transition-all">
+                            เข้าหลังบ้านแอดมินรอง
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="portalMainAdminShortcuts" class="hidden space-y-2 pt-1 border-t border-[#FFBFCA]">
+                <p class="font-cute font-bold text-xs sm:text-sm text-[#78443E]">✨ เมนูจัดการสำหรับแอดมินหลัก:</p>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                    <button onclick="closeModal('gearPortalModal'); openSiteSettingsModal();" class="p-2.5 rounded-xl bg-white hover:bg-[#FCE5C2] border border-[#FFBFCA] font-cute font-bold text-xs text-[#78443E] flex items-center justify-center gap-1.5">
+                        <i class="fa-solid fa-image text-[#9F6963]"></i> ตั้งค่าแบนเนอร์
+                    </button>
+                    <button onclick="closeModal('gearPortalModal'); openAddHouseModal();" class="p-2.5 rounded-xl bg-white hover:bg-[#FCE5C2] border border-[#FFBFCA] font-cute font-bold text-xs text-[#78443E] flex items-center justify-center gap-1.5">
+                        <i class="fa-solid fa-plus-circle text-[#9F6963]"></i> เพิ่มบ้านใหม่
+                    </button>
+                    <button onclick="closeModal('gearPortalModal'); openAccessControlModal();" class="p-2.5 rounded-xl bg-amber-100 hover:bg-amber-200 border border-amber-300 font-cute font-bold text-xs text-[#78443E] flex items-center justify-center gap-1.5">
+                        <i class="fa-solid fa-user-lock"></i> ตัดสิทธิ์แอดมินรอง
+                    </button>
+                </div>
+            </div>
+
+            <!-- ข้อมูลขนาดรูปภาพที่แนะนำสำหรับหลังบ้าน -->
+            <div class="bg-[#FCE5C2]/60 rounded-2xl p-3.5 border border-[#9F6963]/25 text-xs space-y-1.5">
+                <div class="font-cute font-bold text-[#78443E] flex items-center gap-1.5">
+                    <i class="fa-solid fa-ruler-combined text-[#9F6963]"></i> ขนาดรูปภาพที่แนะนำสำหรับตกแต่งหน้าเว็บ:
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-0.5 text-[11px] text-[#78443E]">
+                    <div class="bg-white/80 rounded-xl p-2 border border-[#FFBFCA]">
+                        <span class="font-bold">🖼️ รูปแบนเนอร์ด้านบน:</span><br>
+                        ขนาด <strong>1200 x 480 px</strong> (อัตราส่วน 5:2 หรือ 16:9 แนวนอน)
+                    </div>
+                    <div class="bg-white/80 rounded-xl p-2 border border-[#FFBFCA]">
+                        <span class="font-bold">🌸 รูปหน้าหลัก 4 ช่อง:</span><br>
+                        ขนาด <strong>800 x 800 px</strong> (อัตราส่วน 1:1 จัตุรัส)
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. Modal กรอกอัปเดตสถานะปัญหาของบ้าน (เอาปุ่มข้อความด่วนที่วงสีเขียวออกแล้ว) -->
+    <div id="updateProblemModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-[#78443E]/60 backdrop-blur-sm p-4">
+        <div class="bg-[#F9F1DC] border-2 border-[#FCB1C3] rounded-[2rem] max-w-md w-full p-6 shadow-2xl space-y-4">
+            <div class="flex items-center justify-between border-b border-[#FFBFCA] pb-3">
+                <h3 class="font-cute font-bold text-lg text-[#78443E] flex items-center gap-2">
+                    <span>📝</span> อัปเดตสถานะปัญหาบ้าน <span id="modalUpdateHouseNum" class="text-[#9F6963] underline"></span>
+                </h3>
+                <button onclick="closeModal('updateProblemModal')" class="w-8 h-8 rounded-full bg-white text-[#78443E] hover:bg-[#FCB1C3] flex items-center justify-center">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <form onsubmit="submitProblemUpdate(event)" class="space-y-4 text-sm">
+                <div>
+                    <label class="block font-cute font-bold text-[#78443E] mb-2">1. สถานะปัญหา (กรอบเปลี่ยนสีตามสถานะ):</label>
+                    <div class="grid grid-cols-3 gap-2.5">
+                        <label class="cursor-pointer">
+                            <input type="radio" name="problemStatus" value="GREEN" class="peer sr-only" checked>
+                            <div class="p-2.5 rounded-2xl border-2 border-[#FFBFCA] bg-white peer-checked:border-emerald-500 peer-checked:bg-emerald-50 text-center transition-all">
+                                <div class="text-xl">🟢</div>
+                                <div class="font-cute font-bold text-xs text-emerald-800 mt-1">ใช้งานปกติ</div>
+                            </div>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="problemStatus" value="ORANGE" class="peer sr-only">
+                            <div class="p-2.5 rounded-2xl border-2 border-[#FFBFCA] bg-white peer-checked:border-amber-500 peer-checked:bg-amber-50 text-center transition-all">
+                                <div class="text-xl">🟠</div>
+                                <div class="font-cute font-bold text-xs text-amber-800 mt-1">กำลังแก้ไข</div>
+                            </div>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="problemStatus" value="RED" class="peer sr-only">
+                            <div class="p-2.5 rounded-2xl border-2 border-[#FFBFCA] bg-white peer-checked:border-red-500 peer-checked:bg-red-50 text-center transition-all">
+                                <div class="text-xl">🔴</div>
+                                <div class="font-cute font-bold text-xs text-red-800 mt-1">พบปัญหา</div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <div>
+                    <label for="problemTextInput" class="block font-cute font-bold text-[#78443E] mb-1">2. ปัญหาที่พบ / รายละเอียดสถานะ:</label>
+                    <textarea id="problemTextInput" rows="3" required
+                              placeholder="เช่น เมลใช้งานได้ปกติ / เมลโดนปิด กำลังรอยื่นอุทธรณ์ / แอคติดยืนยัน รอการตรวจสอบ..."
+                              class="w-full rounded-2xl border-2 border-[#FFBFCA] bg-white p-3 text-[#78443E] focus:outline-none focus:border-[#78443E]"></textarea>
+                </div>
+
+                <div class="bg-white/80 rounded-2xl p-3 border border-[#FFBFCA] space-y-2">
+                    <div class="flex items-center justify-between">
+                        <span class="font-cute font-bold text-xs text-[#78443E]">3. เวลาที่อัปเดต (ดึงเวลาเครื่องอัตโนมัติ):</span>
+                        <span id="autoTimePreview" class="text-xs font-bold text-[#9F6963] bg-[#FCE5C2] px-2.5 py-0.5 rounded-full"></span>
+                    </div>
+                    <label class="flex items-center gap-2 text-xs text-[#9F6963] cursor-pointer">
+                        <input type="checkbox" id="useCustomTimeCheck" onchange="toggleCustomTimeInput()" class="rounded text-[#78443E]">
+                        <span>ต้องการระบุวัน-เวลาเองแบบกำหนดเอง</span>
+                    </label>
+                    <input type="text" id="customTimeInput" placeholder="เช่น 14/10 เวลา 12:00น." 
+                           class="hidden w-full rounded-xl border border-[#FFBFCA] px-3 py-1.5 text-xs bg-white text-[#78443E]">
+                </div>
+
+                <div>
+                    <label for="adminActorSelect" class="block font-cute font-bold text-[#78443E] mb-1">4. แอดมินที่ดำเนินการ:</label>
+                    <select id="adminActorSelect" class="w-full rounded-2xl border-2 border-[#FFBFCA] bg-white p-2.5 text-[#78443E] font-cute font-semibold focus:outline-none focus:border-[#78443E]">
+                        <option value="💖 แอดมินหลัก">💖 แอดมินหลัก</option>
+                        <option value="🤍 แอดมินรอง">🤍 แอดมินรอง</option>
+                    </select>
+                </div>
+
+                <div class="flex items-center justify-end gap-2 pt-2">
+                    <button type="button" onclick="closeModal('updateProblemModal')" class="px-4 py-2 rounded-full bg-white text-[#9F6963] font-cute font-bold text-xs border border-[#FFBFCA]">ยกเลิก</button>
+                    <button type="submit" class="px-6 py-2.5 rounded-full bg-[#78443E] hover:bg-[#9F6963] text-[#F9F1DC] font-cute font-bold text-xs sm:text-sm shadow-md transition-all">
+                        ✨ บันทึกการอัปเดตทันที
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 3. Modal เข้าสู่ระบบแอดมินหลัก / แอดมินรอง -->
+    <div id="loginModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-[#78443E]/60 backdrop-blur-sm p-4">
+        <div class="bg-[#F9F1DC] border-2 border-[#FCB1C3] rounded-[2rem] max-w-md w-full p-6 shadow-2xl space-y-4">
+            <div class="flex items-center justify-between border-b border-[#FFBFCA] pb-3">
+                <h3 id="loginModalTitle" class="font-cute font-bold text-lg text-[#78443E]">
+                    🔐 เข้าสู่ระบบแอดมิน
+                </h3>
+                <button onclick="closeModal('loginModal')" class="w-8 h-8 rounded-full bg-white text-[#78443E] hover:bg-[#FCB1C3] flex items-center justify-center">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <form onsubmit="handleAdminLogin(event)" class="space-y-4 text-sm">
+                <input type="hidden" id="loginTargetRole" value="sub_admin">
+
+                <div id="loginHintBox" class="bg-[#FCE5C2]/90 border border-[#9F6963]/30 rounded-2xl p-3 text-xs text-[#78443E] space-y-1">
+                </div>
+
+                <div>
+                    <label for="loginPinInput" class="block font-cute font-bold text-[#78443E] mb-1">รหัสเข้าใช้งาน (Access Key / PIN):</label>
+                    <input type="text" id="loginPinInput" required
+                           placeholder="กรอกรหัสเข้าใช้งาน..."
+                           class="w-full rounded-2xl border-2 border-[#FFBFCA] bg-white p-3 text-[#78443E] font-mono font-bold text-center text-base tracking-widest focus:outline-none focus:border-[#78443E]">
+                </div>
+
+                <div id="loginErrorMsg" class="hidden bg-red-100 border border-red-300 text-red-700 rounded-xl p-2.5 text-xs font-semibold text-center">
+                </div>
+
+                <div class="flex items-center justify-end gap-2 pt-1">
+                    <button type="button" onclick="closeModal('loginModal'); openGearPortalModal();" class="px-4 py-2 rounded-full bg-white text-[#9F6963] font-cute font-bold text-xs border border-[#FFBFCA]">ย้อนกลับ</button>
+                    <button type="submit" class="px-6 py-2.5 rounded-full bg-[#78443E] hover:bg-[#9F6963] text-[#F9F1DC] font-cute font-bold text-xs sm:text-sm shadow-md">
+                        เข้าสู่ระบบ
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 4. Modal จัดการสิทธิ์แอดมินรอง -->
+    <div id="accessControlModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-[#78443E]/60 backdrop-blur-sm p-4">
+        <div class="bg-[#F9F1DC] border-2 border-[#FCB1C3] rounded-[2rem] max-w-lg w-full p-6 shadow-2xl space-y-4">
+            <div class="flex items-center justify-between border-b border-[#FFBFCA] pb-3">
+                <h3 class="font-cute font-bold text-lg text-[#78443E] flex items-center gap-2">
+                    <i class="fa-solid fa-user-shield text-[#9F6963]"></i> จัดการสิทธิ์แอดมินสำรอง (ตัดสิทธิ์คนเก่า)
+                </h3>
+                <button onclick="closeModal('accessControlModal')" class="w-8 h-8 rounded-full bg-white text-[#78443E] hover:bg-[#FCB1C3] flex items-center justify-center">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="space-y-4 text-xs sm:text-sm">
+                <div class="bg-white rounded-2xl p-4 border border-[#FFBFCA] space-y-2">
+                    <div class="flex items-center justify-between">
+                        <span class="font-cute font-bold text-[#78443E]">สถานะสิทธิ์แอดมินสำรองปัจจุบัน:</span>
+                        <span id="subAdminStatusLabel" class="px-3 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800">เปิดใช้งานอยู่</span>
+                    </div>
+                    <div class="flex items-center justify-between pt-1">
+                        <span class="text-[#9F6963]">ชื่อเรียกแอดมินรองปัจจุบัน:</span>
+                        <span id="currentSubAdminNameDisplay" class="font-bold text-[#78443E]">🤍 แอดมินรอง</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-[#9F6963]">รหัสเข้าใช้งาน (Access Key) ปัจจุบัน:</span>
+                        <code id="currentSubAdminKeyDisplay" class="px-2.5 py-1 rounded-lg bg-[#FCE5C2] font-mono font-bold text-[#78443E]">SUB-1111</code>
+                    </div>
+                </div>
+
+                <div class="bg-white/80 rounded-2xl p-4 border border-[#FFBFCA] space-y-3">
+                    <h4 class="font-cute font-bold text-[#78443E]">🔄 เปลี่ยนคนดูแล / ออกรหัสผ่านใหม่ (คนเก่าเข้าไม่ได้ทันที)</h4>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                        <div>
+                            <label class="block text-xs font-semibold text-[#9F6963] mb-1">ชื่อแอดมินรองคนใหม่:</label>
+                            <input type="text" id="newSubAdminNameInput" value="🤍 แอดมินรอง" class="w-full rounded-xl border border-[#FFBFCA] px-3 py-2 bg-white text-[#78443E] text-xs font-semibold">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-[#9F6963] mb-1">กำหนดรหัสใหม่ (หรือกดสุ่ม):</label>
+                            <div class="flex gap-1.5">
+                                <input type="text" id="newSubAdminKeyInput" value="SUB-9999" class="w-full rounded-xl border border-[#FFBFCA] px-3 py-2 bg-white text-[#78443E] font-mono font-bold text-xs">
+                                <button type="button" onclick="generateRandomSubKey()" class="px-3 py-2 rounded-xl bg-[#FCE5C2] hover:bg-[#FCB1C3] text-[#78443E] font-bold text-xs flex-shrink-0">
+                                    🎲 สุ่ม
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="button" onclick="revokeAndSaveNewSubAdmin()" class="w-full py-2.5 rounded-xl bg-[#78443E] hover:bg-[#9F6963] text-[#F9F1DC] font-cute font-bold text-xs sm:text-sm shadow-sm transition-all">
+                        ⚡ ยืนยันเปลี่ยนรหัสใหม่ & ตัดสิทธิ์คนเก่าทันที
+                    </button>
+                </div>
+
+                <div class="flex items-center justify-between bg-red-50 border border-red-200 rounded-2xl p-3.5">
+                    <div>
+                        <div class="font-cute font-bold text-red-800 text-xs sm:text-sm">🚫 ปิดกั้นแอดมินสำรองทั้งหมดชั่วคราว</div>
+                        <div class="text-[11px] text-red-600">ไม่มีแอดมินสำรองคนใดสามารถล็อกอินหรือแก้ไขข้อมูลได้</div>
+                    </div>
+                    <button type="button" id="toggleSubAdminActiveBtn" onclick="toggleSubAdminSuspension()" class="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white font-cute font-bold text-xs flex-shrink-0">
+                        ระงับสิทธิ์ทันที
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 5. Modal เพิ่มบ้านใหม่ -->
+    <div id="addHouseModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-[#78443E]/60 backdrop-blur-sm p-4">
+        <div class="bg-[#F9F1DC] border-2 border-[#FCB1C3] rounded-[2rem] max-w-md w-full p-6 shadow-2xl space-y-4">
+            <div class="flex items-center justify-between border-b border-[#FFBFCA] pb-3">
+                <h3 class="font-cute font-bold text-lg text-[#78443E]">🏠 เพิ่มบ้านใหม่เข้าระบบ</h3>
+                <button onclick="closeModal('addHouseModal')" class="w-8 h-8 rounded-full bg-white text-[#78443E] hover:bg-[#FCB1C3] flex items-center justify-center">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <form onsubmit="handleCreateHouse(event)" class="space-y-3.5 text-sm">
+                <div>
+                    <label class="block font-cute font-bold text-[#78443E] mb-1">เลขบ้าน (เช่น 10.15 หรือ VIP-02):</label>
+                    <input type="text" id="newHouseNumberInput" required placeholder="เช่น 10.15" class="w-full rounded-2xl border-2 border-[#FFBFCA] bg-white p-3 text-[#78443E] font-bold focus:outline-none focus:border-[#78443E]">
+                </div>
+                <div>
+                    <label class="block font-cute font-bold text-[#78443E] mb-1">ประเภทบริการ/รายละเอียดบ้าน:</label>
+                    <input type="text" id="newHouseNoteInput" placeholder="เช่น YouTube Premium / Netflix 4K" value="YouTube Premium Family" class="w-full rounded-2xl border-2 border-[#FFBFCA] bg-white p-3 text-[#78443E] focus:outline-none focus:border-[#78443E]">
+                </div>
+                <div>
+                    <label class="block font-cute font-bold text-[#78443E] mb-1">สถานะเริ่มต้นของบ้าน:</label>
+                    <select id="newHouseInitialStatus" class="w-full rounded-2xl border-2 border-[#FFBFCA] bg-white p-3 text-[#78443E] font-cute font-bold">
+                        <option value="GREEN">🟢 เมลใช้งานได้ปกติ</option>
+                        <option value="ORANGE">🟠 เมลโดนปิด กำลังรอยื่นอุทธรณ์</option>
+                        <option value="RED">🔴 แอคติดยืนยัน รอการตรวจสอบ</option>
+                    </select>
+                </div>
+                <div class="flex justify-end gap-2 pt-2">
+                    <button type="button" onclick="closeModal('addHouseModal')" class="px-4 py-2 rounded-full bg-white text-[#9F6963] font-cute font-bold text-xs border border-[#FFBFCA]">ยกเลิก</button>
+                    <button type="submit" class="px-6 py-2.5 rounded-full bg-[#78443E] hover:bg-[#9F6963] text-[#F9F1DC] font-cute font-bold text-xs sm:text-sm shadow-md">
+                        + สร้างบ้านใหม่
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 6. Modal ตั้งค่าแบนเนอร์และข้อความวิ่ง -->
+    <div id="siteSettingsModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-[#78443E]/60 backdrop-blur-sm p-4">
+        <div class="bg-[#F9F1DC] border-2 border-[#FCB1C3] rounded-[2rem] max-w-md w-full p-6 shadow-2xl space-y-4">
+            <div class="flex items-center justify-between border-b border-[#FFBFCA] pb-3">
+                <h3 class="font-cute font-bold text-lg text-[#78443E]">✨ ตั้งค่าแบนเนอร์ & ข้อความวิ่ง</h3>
+                <button onclick="closeModal('siteSettingsModal')" class="w-8 h-8 rounded-full bg-white text-[#78443E] hover:bg-[#FCB1C3] flex items-center justify-center">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <form onsubmit="saveSiteSettings(event)" class="space-y-3.5 text-sm">
+                <div>
+                    <label class="block font-cute font-bold text-[#78443E] mb-1">ข้อความวิ่งด้านบนขวา (Marquee):</label>
+                    <textarea id="settingMarqueeInput" rows="2" required class="w-full rounded-2xl border-2 border-[#FFBFCA] bg-white p-3 text-[#78443E] text-xs sm:text-sm"></textarea>
+                </div>
+                <div>
+                    <div class="flex items-center justify-between mb-1">
+                        <label class="font-cute font-bold text-[#78443E]">ลิงก์รูปภาพแบนเนอร์หลัก (URL):</label>
+                        <span class="text-[11px] font-cute font-bold bg-[#FCB1C3]/50 text-[#78443E] px-2.5 py-0.5 rounded-full">
+                            ขนาดแนะนำ 1200 x 480 px
+                        </span>
+                    </div>
+                    <input type="url" id="settingBannerUrlInput" required class="w-full rounded-2xl border-2 border-[#FFBFCA] bg-white p-3 text-[#78443E] text-xs">
+                    <p class="text-[11px] text-[#9F6963] mt-1">
+                        💡 แนะนำรูปแนวนอน ขนาด <strong>1200 x 480 พิกเซล</strong> (อัตราส่วนประมาณ 5:2 หรือ 16:9) เพื่อให้แสดงผลเต็มกรอบพอดีทั้งบนมือถือและไอแพดค่ะ
+                    </p>
+                </div>
+                <div class="flex justify-end gap-2 pt-2">
+                    <button type="button" onclick="closeModal('siteSettingsModal')" class="px-4 py-2 rounded-full bg-white text-[#9F6963] font-cute font-bold text-xs border border-[#FFBFCA]">ยกเลิก</button>
+                    <button type="submit" class="px-6 py-2.5 rounded-full bg-[#78443E] hover:bg-[#9F6963] text-[#F9F1DC] font-cute font-bold text-xs sm:text-sm shadow-md">
+                        บันทึกการตั้งค่า
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 7. Modal แก้ไขกรอบรูปหน้าหลัก 4 ช่อง -->
+    <div id="editShowcaseModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-[#78443E]/60 backdrop-blur-sm p-4">
+        <div class="bg-[#F9F1DC] border-2 border-[#FCB1C3] rounded-[2rem] max-w-md w-full p-6 shadow-2xl space-y-4">
+            <div class="flex items-center justify-between border-b border-[#FFBFCA] pb-3">
+                <h3 class="font-cute font-bold text-lg text-[#78443E]">🖼️ เปลี่ยนรูปภาพหน้าหลัก (ช่องที่ <span id="editShowcaseNumLabel">1</span>)</h3>
+                <button onclick="closeModal('editShowcaseModal')" class="w-8 h-8 rounded-full bg-white text-[#78443E] hover:bg-[#FCB1C3] flex items-center justify-center">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <form onsubmit="saveShowcaseCard(event)" class="space-y-3.5 text-sm">
+                <input type="hidden" id="editShowcaseIndex">
+                <div>
+                    <div class="flex items-center justify-between mb-1">
+                        <label class="font-cute font-bold text-[#78443E]">ลิงก์รูปภาพ (URL):</label>
+                        <span class="text-[11px] font-cute font-bold bg-[#FCB1C3]/50 text-[#78443E] px-2.5 py-0.5 rounded-full">
+                            ขนาดแนะนำ 800 x 800 px (1:1)
+                        </span>
+                    </div>
+                    <input type="text" id="editShowcaseImg" placeholder="วางลิงก์รูปภาพ .jpg / .png ที่นี่..." class="w-full rounded-2xl border-2 border-[#FFBFCA] bg-white p-3 text-[#78443E] text-xs">
+                    <p class="text-[11px] text-[#9F6963] mt-1.5">
+                        💡 แนะนำรูปสี่เหลี่ยมจัตุรัส ขนาด <strong>800 x 800 พิกเซล</strong> หรือ <strong>1080 x 1080 พิกเซล</strong> (อัตราส่วน 1:1) เมื่อลูกค้าแตะที่รูปจะเปิดป๊อปอัพขยายดูรูปเต็มได้ค่ะ
+                    </p>
+                </div>
+                <div class="flex justify-end gap-2 pt-2">
+                    <button type="button" onclick="closeModal('editShowcaseModal')" class="px-4 py-2 rounded-full bg-white text-[#9F6963] font-cute font-bold text-xs border border-[#FFBFCA]">ยกเลิก</button>
+                    <button type="submit" class="px-6 py-2.5 rounded-full bg-[#78443E] hover:bg-[#9F6963] text-[#F9F1DC] font-cute font-bold text-xs sm:text-sm shadow-md">
+                        บันทึกรูปหน้าหลัก
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- กล่องแจ้งเตือนแบบนุ่มนวล -->
+    <div id="toastContainer" class="fixed bottom-20 right-5 z-50 flex flex-col gap-2 max-w-xs sm:max-w-sm pointer-events-none"></div>
+
+    <script>
+        const appState = {
+            currentRole: 'customer',
+            activeHouseNumber: '10.10',
+            adminFilter: 'ALL',
+            adminSearchQuery: '',
+
+            authConfig: {
+                mainAdminPin: 'ADMIN-999',
+                subAdminKey: 'SUB-1111',
+                subAdminName: '🤍 แอดมินรอง',
+                subAdminActive: true,
+                loggedSubAdminKeyUsed: null
+            },
+
+            siteConfig: {
+                marqueeText: '🎀 ยินดีต้อนรับสู่ Peemy store ค่ะ ลูกค้าสามารถพิมพ์ค้นหา "เลขบ้าน" ของตัวเองเพื่อเช็คสถานะการแก้ไขปัญหาแบบเรียลไทม์ได้เลยนะคะ 💖 หากพบปัญหาเพิ่มเติมทักหาแอดมินได้ตลอดเวลาเลยน้า 🌷✨',
+                bannerUrl: 'https://i.postimg.cc/1tyKNqzY/att-0t-Oq-CDXy8sg-Ea-Imu8-vz7m-TR1DWc-J92z-Uogv-Gzw-O0Lw.jpg'
+            },
+
+            showcaseItems: [
+                {
+                    imgUrl: 'https://i.postimg.cc/1tyKNqzY/att-0t-Oq-CDXy8sg-Ea-Imu8-vz7m-TR1DWc-J92z-Uogv-Gzw-O0Lw.jpg'
+                },
+                {
+                    imgUrl: 'https://placehold.co/800x800/FFBFCA/78443E?text=Peemy+Store+Pic+2+(Demo)'
+                },
+                {
+                    imgUrl: 'https://placehold.co/800x800/FCE5C2/78443E?text=Peemy+Store+Pic+3+(Demo)'
+                },
+                {
+                    imgUrl: 'https://placehold.co/800x800/FCB1C3/78443E?text=Peemy+Store+Pic+4+(Demo)'
+                }
+            ],
+
+            houses: [
+                {
+                    houseNumber: '10.10',
+                    serviceName: 'YouTube Premium Family',
+                    updates: [
+                        {
+                            id: 'upd-1010-3',
+                            status: 'GREEN',
+                            issue: 'เมลใช้งานได้ปกติ',
+                            timeText: '14/10 เวลา 12:00น.',
+                            adminName: '💖 แอดมินหลัก'
+                        },
+                        {
+                            id: 'upd-1010-2',
+                            status: 'ORANGE',
+                            issue: 'เมลโดนปิด กำลังรอยื่นอุทธรณ์',
+                            timeText: '13/10 เวลา 19:00น.',
+                            adminName: '💖 แอดมินหลัก'
+                        },
+                        {
+                            id: 'upd-1010-1',
+                            status: 'RED',
+                            issue: 'แอคติดยืนยัน รอการตรวจสอบ',
+                            timeText: '13/10 เวลา 15:00น.',
+                            adminName: '🤍 แอดมินรอง'
+                        }
+                    ]
+                },
+                {
+                    houseNumber: '10.11',
+                    serviceName: 'YouTube Premium Family',
+                    updates: [
+                        {
+                            id: 'upd-1011-2',
+                            status: 'ORANGE',
+                            issue: 'เมลโดนปิด กำลังรอยื่นอุทธรณ์ รอผลภายใน 24 ชม.',
+                            timeText: '14/10 เวลา 16:30น.',
+                            adminName: '🤍 แอดมินรอง'
+                        },
+                        {
+                            id: 'upd-1011-1',
+                            status: 'RED',
+                            issue: 'แอคติดยืนยัน รอการตรวจสอบจากระบบ',
+                            timeText: '14/10 เวลา 10:15น.',
+                            adminName: '🤍 แอดมินรอง'
+                        }
+                    ]
+                },
+                {
+                    houseNumber: '10.12',
+                    serviceName: 'Netflix 4K Ultra HD',
+                    updates: [
+                        {
+                            id: 'upd-1012-1',
+                            status: 'RED',
+                            issue: 'แอคติดยืนยันครัวเรือน รอแอดมินรีเซ็ตลิงก์ใหม่',
+                            timeText: '14/10 เวลา 18:45น.',
+                            adminName: '💖 แอดมินหลัก'
+                        }
+                    ]
+                },
+                {
+                    houseNumber: 'VIP-01',
+                    serviceName: 'Spotify & YouTube Pack',
+                    updates: [
+                        {
+                            id: 'upd-vip-1',
+                            status: 'GREEN',
+                            issue: 'เมลใช้งานได้ปกติ ต่ออายุรอบใหม่เรียบร้อยค่ะ',
+                            timeText: '14/10 เวลา 09:00น.',
+                            adminName: '💖 แอดมินหลัก'
+                        }
+                    ]
+                }
+            ]
+        };
+
+        function getFormattedAutoTime() {
+            const now = new Date();
+            const day = String(now.getDate()).padStart(2, '0');
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            return `${day}/${month} เวลา ${hours}:${minutes}น.`;
+        }
+
+        function getStatusConfig(status) {
+            switch (status) {
+                case 'GREEN':
+                    return {
+                        emoji: '🟢',
+                        frameClass: 'status-frame-green',
+                        badgeClass: 'status-badge-green',
+                        shortLabel: 'ใช้งานปกติ',
+                        decorColor: 'text-emerald-400',
+                        accentBar: 'from-emerald-300 via-teal-200 to-emerald-300',
+                        timePillBg: 'bg-emerald-50/90 border-emerald-200 text-emerald-800'
+                    };
+                case 'ORANGE':
+                    return {
+                        emoji: '🟠',
+                        frameClass: 'status-frame-orange',
+                        badgeClass: 'status-badge-orange',
+                        shortLabel: 'กำลังแก้ไข',
+                        decorColor: 'text-amber-400',
+                        accentBar: 'from-amber-300 via-orange-200 to-amber-300',
+                        timePillBg: 'bg-amber-50/90 border-amber-200 text-amber-900'
+                    };
+                case 'RED':
+                default:
+                    return {
+                        emoji: '🔴',
+                        frameClass: 'status-frame-red',
+                        badgeClass: 'status-badge-red',
+                        shortLabel: 'พบปัญหา',
+                        decorColor: 'text-red-400',
+                        accentBar: 'from-rose-300 via-red-200 to-rose-300',
+                        timePillBg: 'bg-rose-50/90 border-rose-200 text-rose-900'
+                    };
+            }
+        }
+
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            if (!container) return;
+            const toast = document.createElement('div');
+            const bgClass = type === 'error' 
+                ? 'bg-red-600 text-white border-red-300' 
+                : 'bg-[#78443E] text-[#F9F1DC] border-[#FCB1C3]';
+            
+            toast.className = `pointer-events-auto px-4 py-3 rounded-2xl border-2 shadow-xl font-cute text-xs sm:text-sm font-semibold flex items-center gap-2.5 transition-all duration-300 ${bgClass}`;
+            toast.innerHTML = `<span>✨</span><span>${message}</span>`;
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(10px)';
+                setTimeout(() => toast.remove(), 300);
+            }, 3500);
+        }
+
+        function renderShowcaseGrid() {
+            const grid = document.getElementById('showcaseGrid');
+            if (!grid) return;
+            const isMainAdmin = appState.currentRole === 'main_admin';
+
+            grid.innerHTML = appState.showcaseItems.map((item, idx) => `
+                <div class="princess-card rounded-[2rem] p-2 sm:p-3 relative group overflow-hidden">
+                    ${isMainAdmin ? `
+                        <button onclick="event.stopPropagation(); openEditShowcaseModal(${idx});" 
+                                class="absolute top-4 right-4 z-20 px-3 py-1.5 rounded-full bg-[#78443E]/90 hover:bg-[#78443E] text-[#F9F1DC] text-[11px] font-cute font-bold shadow-md flex items-center gap-1 border border-[#FFBFCA]">
+                            <i class="fa-solid fa-camera"></i> เปลี่ยนรูปที่ ${idx + 1}
+                        </button>
+                    ` : ''}
+
+                    <div onclick="openImageLightbox(${idx})" class="cursor-pointer relative aspect-square w-full rounded-[1.5rem] overflow-hidden bg-[#FCE5C2]/40 border border-[#FFBFCA]/80">
+                        <img src="${item.imgUrl}" 
+                             alt="Peemy Gallery ${idx + 1}" 
+                             class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                             onerror="this.src='https://placehold.co/800x800/FFBFCA/78443E?text=Peemy+Pic+${idx+1}'">
+                        <div class="absolute bottom-2.5 right-2.5 w-8 h-8 rounded-full bg-white/85 text-[#78443E] flex items-center justify-center shadow-sm opacity-85 group-hover:opacity-100 group-hover:scale-110 transition-all border border-[#FFBFCA]">
+                            <i class="fa-solid fa-magnifying-glass-plus text-xs"></i>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function openImageLightbox(index) {
+            const item = appState.showcaseItems[index];
+            if (!item) return;
+            const imgEl = document.getElementById('lightboxPreviewImg');
+            imgEl.src = item.imgUrl;
+            openModal('imageLightboxModal');
+        }
+
+        function openGearPortalModal() {
+            const roleText = document.getElementById('portalCurrentRoleText');
+            const logoutBtn = document.getElementById('portalLogoutBtn');
+            const mainShortcuts = document.getElementById('portalMainAdminShortcuts');
+
+            if (appState.currentRole === 'main_admin') {
+                roleText.innerHTML = '💖 แอดมินหลัก (จัดการได้ทุกอย่าง)';
+                logoutBtn.classList.remove('hidden');
+                mainShortcuts.classList.remove('hidden');
+            } else if (appState.currentRole === 'sub_admin') {
+                roleText.innerHTML = `${appState.authConfig.subAdminName} (อัปเดตปัญหาบ้านได้)`;
+                logoutBtn.classList.remove('hidden');
+                mainShortcuts.classList.add('hidden');
+            } else {
+                roleText.innerHTML = '👀 ลูกค้าทั่วไป (ดูได้อย่างเดียว)';
+                logoutBtn.classList.add('hidden');
+                mainShortcuts.classList.add('hidden');
+            }
+
+            openModal('gearPortalModal');
+        }
+
+        function handleAdminHouseSearch(val) {
+            appState.adminSearchQuery = val.trim();
+            const clearBtn = document.getElementById('clearAdminSearchBtn');
+            if (clearBtn) {
+                if (appState.adminSearchQuery) clearBtn.classList.remove('hidden');
+                else clearBtn.classList.add('hidden');
+            }
+            renderAdminHousesDashboard();
+        }
+
+        function clearAdminHouseSearch() {
+            const input = document.getElementById('adminHouseSearchInput');
+            if (input) input.value = '';
+            handleAdminHouseSearch('');
+        }
+
+        function renderAdminHousesDashboard() {
+            const section = document.getElementById('adminAllHousesSection');
+            const grid = document.getElementById('adminHousesGrid');
+            const countSpan = document.getElementById('totalHousesCount');
+            if (!section || !grid || !countSpan) return;
+
+            if (appState.currentRole === 'customer') {
+                section.classList.add('hidden');
+                return;
+            }
+
+            section.classList.remove('hidden');
+            countSpan.textContent = appState.houses.length;
+
+            const q = (appState.adminSearchQuery || '').toLowerCase();
+
+            const filteredHouses = appState.houses.filter(h => {
+                const latestStatus = h.updates[0]?.status || 'GREEN';
+                const statusMatch = appState.adminFilter === 'ALL' || latestStatus === appState.adminFilter;
+                const searchMatch = !q ||
+                    h.houseNumber.toLowerCase().includes(q) ||
+                    (h.serviceName && h.serviceName.toLowerCase().includes(q)) ||
+                    (h.updates[0]?.issue && h.updates[0].issue.toLowerCase().includes(q));
+                return statusMatch && searchMatch;
+            });
+
+            if (filteredHouses.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-full text-center py-8 bg-[#F9F1DC]/60 rounded-2xl border border-[#FFBFCA] text-[#9F6963] font-cute text-sm">
+                        ไม่พบบ้านที่ค้นหาหรือในสถานะที่เลือกค่ะ 🌸
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = filteredHouses.map(house => {
+                const latest = house.updates[0] || {
+                    status: 'GREEN',
+                    issue: 'ยังไม่มีประวัติปัญหา',
+                    timeText: '-',
+                    adminName: '-'
+                };
+                const st = getStatusConfig(latest.status);
+
+                return `
+                    <div onclick="openHouseDetail('${house.houseNumber}')" 
+                         class="cursor-pointer rounded-2xl p-4 transition-all hover:-translate-y-1 ${st.frameClass} flex flex-col justify-between gap-2.5">
+                        <div class="flex items-center justify-between gap-2 bg-white/80 p-1.5 pl-2.5 rounded-2xl border border-[#FFBFCA]/80 shadow-sm">
+                            <div class="inline-flex items-center gap-1.5 min-w-0">
+                                <span class="w-6 h-6 rounded-full bg-gradient-to-br from-[#FCB1C3] to-[#FFBFCA] text-[#78443E] flex items-center justify-center text-[11px] flex-shrink-0 shadow-sm">
+                                    <i class="fa-solid fa-house"></i>
+                                </span>
+                                <span class="text-[#78443E] font-cute font-bold text-xs sm:text-sm whitespace-nowrap truncate">
+                                    บ้าน ${house.houseNumber}
+                                </span>
+                            </div>
+                            <span class="text-[11px] font-cute font-bold px-2.5 py-1 rounded-full whitespace-nowrap flex-shrink-0 ${st.badgeClass}">
+                                ${st.emoji} ${st.shortLabel}
+                            </span>
+                        </div>
+                        <div class="text-xs text-[#78443E] font-medium line-clamp-2 px-1">
+                            ${latest.issue}
+                        </div>
+                        <div class="flex items-center justify-between text-[11px] text-[#9F6963] border-t border-[#FFBFCA]/50 pt-2 px-1">
+                            <span><i class="fa-regular fa-clock mr-1"></i>อัปเดต ${latest.timeText}</span>
+                            <span class="font-cute font-bold text-[#78443E] hover:underline">แก้ไข <i class="fa-solid fa-chevron-right text-[9px]"></i></span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function filterAdminHouses(statusFilter) {
+            appState.adminFilter = statusFilter;
+            ['ALL', 'RED', 'ORANGE', 'GREEN'].forEach(key => {
+                const btn = document.getElementById(`filterBtn_${key}`);
+                if (!btn) return;
+                if (key === statusFilter) {
+                    btn.className = 'px-3 py-1 rounded-full bg-[#78443E] text-[#F9F1DC] font-bold transition-all';
+                } else {
+                    btn.className = 'px-3 py-1 rounded-full bg-[#F9F1DC] hover:bg-[#FCE5C2] text-[#78443E] border border-[#FFBFCA] transition-all';
+                }
+            });
+            renderAdminHousesDashboard();
+        }
+
+        function handleSearchSuggestions(query) {
+            const box = document.getElementById('searchSuggestionsBox');
+            const clearBtn = document.getElementById('clearSearchBtn');
+            const cleanQuery = query.trim().toLowerCase();
+
+            if (!cleanQuery) {
+                box.classList.add('hidden');
+                clearBtn.classList.add('hidden');
+                return;
+            }
+
+            clearBtn.classList.remove('hidden');
+            const matched = appState.houses.filter(h => 
+                h.houseNumber.toLowerCase().includes(cleanQuery) || 
+                h.serviceName.toLowerCase().includes(cleanQuery)
+            );
+
+            box.classList.remove('hidden');
+            if (matched.length === 0) {
+                box.innerHTML = `
+                    <div class="p-3 text-center text-xs sm:text-sm font-cute text-[#9F6963]">
+                        ไม่พบเลขบ้าน "<span class="font-bold text-[#78443E]">${query}</span>" ค่ะ 🌷
+                    </div>
+                `;
+                return;
+            }
+
+            box.innerHTML = matched.map(h => {
+                const latest = h.updates[0];
+                const st = getStatusConfig(latest ? latest.status : 'GREEN');
+                return `
+                    <button type="button" onclick="openHouseDetail('${h.houseNumber}')" 
+                            class="w-full flex items-center justify-between p-2.5 sm:px-4 rounded-2xl hover:bg-[#FFF5F8] transition-all text-left border border-transparent hover:border-[#FFBFCA] group">
+                        <div class="flex items-center gap-2.5 min-w-0">
+                            <!-- ปรับดีไซน์ป้ายเลขบ้านในช่องค้นหาด่วน (จุดที่วงสีเขียวในภาพที่ 2) ให้สวยหวาน -->
+                            <div class="house-title-badge inline-flex items-center gap-2 px-3.5 py-1 rounded-full flex-shrink-0 group-hover:scale-[1.02] transition-transform">
+                                <span class="w-5 h-5 rounded-full bg-gradient-to-br from-[#FCB1C3] to-[#FFBFCA] text-[#78443E] flex items-center justify-center text-[10px] shadow-sm">
+                                    <i class="fa-solid fa-house-chimney-heart"></i>
+                                </span>
+                                <span class="text-[#78443E] font-cute font-bold text-xs sm:text-sm whitespace-nowrap">
+                                    เลขบ้าน ${h.houseNumber}
+                                </span>
+                            </div>
+                            <span class="text-xs text-[#9F6963] hidden sm:inline truncate">${h.serviceName}</span>
+                        </div>
+                        <div class="flex items-center gap-2 text-xs font-cute font-bold flex-shrink-0">
+                            <span class="px-2.5 py-0.5 rounded-full ${st.badgeClass}">${st.emoji} ${st.shortLabel}</span>
+                            <i class="fa-solid fa-chevron-right text-[#9F6963] group-hover:translate-x-0.5 transition-transform"></i>
+                        </div>
+                    </button>
+                `;
+            }).join('');
+        }
+
+        function clearSearchInput() {
+            const input = document.getElementById('houseSearchInput');
+            input.value = '';
+            handleSearchSuggestions('');
+        }
+
+        function handleHouseSearch(e) {
+            e.preventDefault();
+            const input = document.getElementById('houseSearchInput');
+            const query = input.value.trim();
+            if (!query) {
+                showToast('กรุณาพิมพ์เลขบ้านที่ต้องการค้นหาก่อนนะคะ 🌷');
+                return;
+            }
+
+            const clean = query.replace(/^เลขบ้าน\s*/i, '').trim().toLowerCase();
+            const found = appState.houses.find(h => h.houseNumber.toLowerCase() === clean) ||
+                          appState.houses.find(h => h.houseNumber.toLowerCase().includes(clean));
+
+            if (found) {
+                openHouseDetail(found.houseNumber);
+            } else {
+                showToast(`ไม่พบข้อมูลเลขบ้าน "${query}" ในระบบค่ะ`, 'error');
+            }
+        }
+
+        function openHouseDetail(houseNumber) {
+            const house = appState.houses.find(h => h.houseNumber === houseNumber);
+            if (!house) return;
+
+            appState.activeHouseNumber = house.houseNumber;
+            document.getElementById('searchSuggestionsBox').classList.add('hidden');
+
+            document.getElementById('homeView').classList.add('hidden');
+            document.getElementById('houseDetailView').classList.remove('hidden');
+
+            renderHouseDetailTimeline();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function showHomeView() {
+            document.getElementById('houseDetailView').classList.add('hidden');
+            document.getElementById('homeView').classList.remove('hidden');
+            renderAdminHousesDashboard();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function renderHouseDetailTimeline() {
+            const house = appState.houses.find(h => h.houseNumber === appState.activeHouseNumber);
+            if (!house) return;
+
+            const titlePill = document.getElementById('detailHouseTitlePill');
+            if (titlePill) titlePill.textContent = `เลขบ้าน ${house.houseNumber}`;
+
+            const serviceTextEl = document.getElementById('detailHouseServiceText');
+            if (serviceTextEl) {
+                serviceTextEl.textContent = house.serviceName || 'บริการบ้านแชร์ Peemy store';
+            }
+
+            const container = document.getElementById('houseTimelineContainer');
+            if (!container) return;
+
+            if (!house.updates || house.updates.length === 0) {
+                container.innerHTML = `
+                    <div class="p-8 text-center rounded-3xl bg-[#F9F1DC] border-2 border-[#FFBFCA] font-cute text-[#9F6963]">
+                        ยังไม่มีประวัติการแจ้งปัญหาสำหรับบ้านนี้ค่ะ 🌸
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = house.updates.map((upd, index) => {
+                const st = getStatusConfig(upd.status);
+                return `
+                    <div class="relative overflow-hidden rounded-[1.85rem] p-6 sm:p-7 transition-all hover:-translate-y-0.5 ${st.frameClass}">
+                        <!-- แถบสีพาสเทลด้านบนการ์ด -->
+                        <div class="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r ${st.accentBar}"></div>
+
+                        <!-- ไอคอนตกแต่งมุมการ์ด -->
+                        <span class="absolute top-4 right-4 text-xs sm:text-sm select-none opacity-85 ${st.decorColor}">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i>
+                        </span>
+                        <span class="absolute bottom-3.5 left-4 text-xs select-none opacity-65 ${st.decorColor}">
+                            <i class="fa-solid fa-heart"></i>
+                        </span>
+                        <span class="absolute bottom-3.5 right-4 text-xs select-none opacity-65 ${st.decorColor}">
+                            <i class="fa-solid fa-star"></i>
+                        </span>
+
+                        ${appState.currentRole === 'main_admin' && house.updates.length > 1 ? `
+                            <button onclick="deleteTimelineItem('${upd.id}')" 
+                                    title="ลบรายการอัปเดตนี้"
+                                    class="absolute top-4 left-4 w-7 h-7 rounded-full bg-white/90 hover:bg-red-100 text-[#9F6963] hover:text-red-600 text-xs flex items-center justify-center border border-[#FFBFCA] transition-colors z-10 shadow-sm">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        ` : ''}
+
+                        <div class="text-center font-cute space-y-2.5 text-[#78443E] pt-1">
+                            <div>
+                                <span class="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full text-xs font-bold ${st.badgeClass}">
+                                    ${st.emoji} ${st.shortLabel} ${index === 0 ? '• ล่าสุด ✨' : ''}
+                                </span>
+                            </div>
+
+                            <!-- เอาวงกลมสีหน้าข้อความ (จุดที่วงสีดำ) ออกแล้ว -->
+                            <div class="text-base sm:text-xl font-bold flex items-center justify-center gap-2 flex-wrap px-2">
+                                <span>${upd.issue}</span>
+                            </div>
+
+                            <div class="pt-0.5">
+                                <span class="inline-flex items-center gap-1.5 px-4 py-1 rounded-full text-xs sm:text-sm font-semibold border shadow-sm ${st.timePillBg}">
+                                    <i class="fa-regular fa-clock"></i>
+                                    <span>อัปเดต ${upd.timeText}</span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function switchRole(role) {
+            if (role === 'sub_admin') {
+                if (!appState.authConfig.subAdminActive || appState.authConfig.loggedSubAdminKeyUsed !== appState.authConfig.subAdminKey) {
+                    appState.currentRole = 'customer';
+                    updateRoleUI();
+                    showToast('สิทธิ์แอดมินรองเดิมถูกยกเลิกแล้ว กรุณาเข้าสู่ระบบด้วยรหัสใหม่ค่ะ 🔒', 'error');
+                    return;
+                }
+            }
+
+            appState.currentRole = role;
+            updateRoleUI();
+
+            if (role === 'customer') {
+                showToast('ออกจากระบบแอดมิน กลับสู่มุมมองลูกค้าเรียบร้อยค่ะ 🌸');
+            }
+        }
+
+        function updateRoleUI() {
+            const role = appState.currentRole;
+            const topBar = document.getElementById('adminActiveTopBar');
+            const badge = document.getElementById('currentRoleBadge');
+            const gearDot = document.getElementById('gearActiveDot');
+
+            if (role === 'customer') {
+                topBar.classList.add('hidden');
+                if (gearDot) gearDot.classList.add('hidden');
+            } else if (role === 'sub_admin') {
+                topBar.classList.remove('hidden');
+                badge.innerHTML = `${appState.authConfig.subAdminName} (อัปเดตปัญหาบ้านได้)`;
+                if (gearDot) gearDot.classList.remove('hidden');
+            } else if (role === 'main_admin') {
+                topBar.classList.remove('hidden');
+                badge.innerHTML = '💖 แอดมินหลัก (จัดการได้ทุกอย่าง)';
+                if (gearDot) gearDot.classList.remove('hidden');
+            }
+
+            document.querySelectorAll('.main-admin-only').forEach(el => {
+                if (role === 'main_admin') el.classList.remove('hidden');
+                else el.classList.add('hidden');
+            });
+
+            document.querySelectorAll('.admin-only').forEach(el => {
+                if (role === 'main_admin' || role === 'sub_admin') el.classList.remove('hidden');
+                else el.classList.add('hidden');
+            });
+
+            renderShowcaseGrid();
+            renderAdminHousesDashboard();
+            renderHouseDetailTimeline();
+        }
+
+        function openLoginModal(targetRole) {
+            if (appState.currentRole === targetRole) {
+                showToast(`คุณอยู่ในระบบ ${targetRole === 'main_admin' ? '💖 แอดมินหลัก' : '🤍 แอดมินรอง'} อยู่แล้วค่ะ`);
+                return;
+            }
+
+            document.getElementById('loginTargetRole').value = targetRole;
+            const titleEl = document.getElementById('loginModalTitle');
+            const hintBox = document.getElementById('loginHintBox');
+            const pinInput = document.getElementById('loginPinInput');
+            const errorMsg = document.getElementById('loginErrorMsg');
+
+            errorMsg.classList.add('hidden');
+
+            if (targetRole === 'main_admin') {
+                titleEl.innerHTML = '💖 เข้าหลังบ้าน: แอดมินหลัก';
+                pinInput.value = appState.authConfig.mainAdminPin;
+                hintBox.innerHTML = `
+                    <div class="font-bold text-[#78443E]">🔑 รหัสแอดมินหลัก (สำหรับทดสอบ): <code class="bg-white px-2 py-0.5 rounded">${appState.authConfig.mainAdminPin}</code></div>
+                    <div>• จัดการบ้านทั้งหมด เปลี่ยนรูปแบนเนอร์/รูปหน้าหลัก และตัดสิทธิ์แอดมินรองได้</div>
+                `;
+            } else {
+                titleEl.innerHTML = '🤍 เข้าหลังบ้าน: แอดมินสำรอง';
+                pinInput.value = appState.authConfig.subAdminKey;
+                hintBox.innerHTML = `
+                    <div class="font-bold text-[#78443E]">🔑 รหัสแอดมินรองปัจจุบัน: <code class="bg-white px-2 py-0.5 rounded">${appState.authConfig.subAdminKey}</code></div>
+                    <div>• อัปเดตสถานะปัญหาของแต่ละบ้านได้อย่างเดียว</div>
+                `;
+            }
+
+            openModal('loginModal');
+        }
+
+        function handleAdminLogin(e) {
+            e.preventDefault();
+            const targetRole = document.getElementById('loginTargetRole').value;
+            const pin = document.getElementById('loginPinInput').value.trim();
+            const errorMsg = document.getElementById('loginErrorMsg');
+
+            if (targetRole === 'main_admin') {
+                if (pin === appState.authConfig.mainAdminPin) {
+                    closeModal('loginModal');
+                    switchRole('main_admin');
+                    showToast('เข้าสู่ระบบหลังบ้าน "💖 แอดมินหลัก" สำเร็จค่ะ!');
+                } else {
+                    errorMsg.textContent = 'รหัสแอดมินหลักไม่ถูกต้องค่ะ';
+                    errorMsg.classList.remove('hidden');
+                }
+            } else {
+                if (!appState.authConfig.subAdminActive) {
+                    errorMsg.textContent = '🚫 สิทธิ์แอดมินสำรองถูกระงับชั่วคราวโดยแอดมินหลัก ไม่สามารถเข้าใช้งานได้ค่ะ';
+                    errorMsg.classList.remove('hidden');
+                    return;
+                }
+                if (pin === appState.authConfig.subAdminKey) {
+                    appState.authConfig.loggedSubAdminKeyUsed = pin;
+                    closeModal('loginModal');
+                    switchRole('sub_admin');
+                    showToast(`เข้าสู่ระบบหลังบ้าน "${appState.authConfig.subAdminName}" สำเร็จค่ะ!`);
+                } else {
+                    errorMsg.textContent = '❌ รหัสเข้าใช้งานไม่ถูกต้อง หรือรหัสเดิมถูกแอดมินหลักยกเลิกสิทธิ์ไปแล้วค่ะ!';
+                    errorMsg.classList.remove('hidden');
+                }
+            }
+        }
+
+        function openAccessControlModal() {
+            if (appState.currentRole !== 'main_admin') return;
+            refreshAccessControlModalUI();
+            openModal('accessControlModal');
+        }
+
+        function refreshAccessControlModalUI() {
+            const statusLabel = document.getElementById('subAdminStatusLabel');
+            const nameDisplay = document.getElementById('currentSubAdminNameDisplay');
+            const keyDisplay = document.getElementById('currentSubAdminKeyDisplay');
+            const toggleBtn = document.getElementById('toggleSubAdminActiveBtn');
+
+            nameDisplay.textContent = appState.authConfig.subAdminName;
+            keyDisplay.textContent = appState.authConfig.subAdminKey;
+
+            if (appState.authConfig.subAdminActive) {
+                statusLabel.textContent = '🟢 เปิดใช้งานอยู่';
+                statusLabel.className = 'px-3 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800';
+                toggleBtn.textContent = 'ระงับสิทธิ์ทันที';
+                toggleBtn.className = 'px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white font-cute font-bold text-xs flex-shrink-0';
+            } else {
+                statusLabel.textContent = '🔴 ถูกระงับสิทธิ์ทั้งหมด';
+                statusLabel.className = 'px-3 py-0.5 rounded-full text-xs font-bold bg-red-100 text-red-800';
+                toggleBtn.textContent = 'เปิดสิทธิ์อีกครั้ง';
+                toggleBtn.className = 'px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-cute font-bold text-xs flex-shrink-0';
+            }
+        }
+
+        function generateRandomSubKey() {
+            const randomNum = Math.floor(1000 + Math.random() * 9000);
+            document.getElementById('newSubAdminKeyInput').value = `SUB-${randomNum}`;
+        }
+
+        function revokeAndSaveNewSubAdmin() {
+            const newName = document.getElementById('newSubAdminNameInput').value.trim() || '🤍 แอดมินรอง';
+            const newKey = document.getElementById('newSubAdminKeyInput').value.trim();
+
+            if (!newKey) {
+                showToast('กรุณากำหนดรหัสเข้าใช้งานใหม่ก่อนนะคะ', 'error');
+                return;
+            }
+
+            const oldKey = appState.authConfig.subAdminKey;
+            appState.authConfig.subAdminName = newName;
+            appState.authConfig.subAdminKey = newKey;
+            appState.authConfig.subAdminActive = true;
+            appState.authConfig.loggedSubAdminKeyUsed = null;
+
+            refreshAccessControlModalUI();
+            showToast(`เปลี่ยนรหัสแอดมินรองเป็น "${newKey}" สำเร็จ! รหัสเก่า (${oldKey}) ถูกตัดสิทธิ์ถาวรแล้วค่ะ 🔒`);
+        }
+
+        function toggleSubAdminSuspension() {
+            appState.authConfig.subAdminActive = !appState.authConfig.subAdminActive;
+            if (!appState.authConfig.subAdminActive) {
+                appState.authConfig.loggedSubAdminKeyUsed = null;
+                showToast('🚫 ระงับสิทธิ์แอดมินสำรองทั้งหมดเรียบร้อยแล้วค่ะ');
+            } else {
+                showToast('🟢 เปิดสิทธิ์ให้แอดมินสำรองเข้าใช้งานได้ตามปกติแล้วค่ะ');
+            }
+            refreshAccessControlModalUI();
+        }
+
+        function openAddUpdateModal() {
+            if (appState.currentRole === 'customer') return;
+
+            document.getElementById('modalUpdateHouseNum').textContent = appState.activeHouseNumber;
+            document.getElementById('problemTextInput').value = '';
+            document.getElementById('autoTimePreview').textContent = `อัปเดต ${getFormattedAutoTime()}`;
+            document.getElementById('useCustomTimeCheck').checked = false;
+            document.getElementById('customTimeInput').classList.add('hidden');
+
+            const actorSelect = document.getElementById('adminActorSelect');
+            if (appState.currentRole === 'main_admin') {
+                actorSelect.value = '💖 แอดมินหลัก';
+            } else {
+                actorSelect.value = '🤍 แอดมินรอง';
+            }
+
+            openModal('updateProblemModal');
+        }
+
+        function toggleCustomTimeInput() {
+            const checked = document.getElementById('useCustomTimeCheck').checked;
+            const input = document.getElementById('customTimeInput');
+            if (checked) {
+                input.classList.remove('hidden');
+                input.value = getFormattedAutoTime();
+            } else {
+                input.classList.add('hidden');
+            }
+        }
+
+        function submitProblemUpdate(e) {
+            e.preventDefault();
+            const house = appState.houses.find(h => h.houseNumber === appState.activeHouseNumber);
+            if (!house) return;
+
+            const statusRadio = document.querySelector('input[name="problemStatus"]:checked');
+            const status = statusRadio ? statusRadio.value : 'GREEN';
+            const issueText = document.getElementById('problemTextInput').value.trim();
+            const useCustomTime = document.getElementById('useCustomTimeCheck').checked;
+            const timeText = useCustomTime && document.getElementById('customTimeInput').value.trim()
+                ? document.getElementById('customTimeInput').value.trim()
+                : getFormattedAutoTime();
+            const adminName = document.getElementById('adminActorSelect').value;
+
+            house.updates.unshift({
+                id: 'upd-' + Date.now(),
+                status,
+                issue: issueText,
+                timeText,
+                adminName
+            });
+
+            closeModal('updateProblemModal');
+            renderHouseDetailTimeline();
+            renderAdminHousesDashboard();
+            showToast(`บันทึกการอัปเดตบ้าน ${house.houseNumber} เรียบร้อยแล้วค่ะ ✨`);
+        }
+
+        function deleteTimelineItem(updateId) {
+            if (appState.currentRole !== 'main_admin') return;
+            const house = appState.houses.find(h => h.houseNumber === appState.activeHouseNumber);
+            if (!house) return;
+
+            house.updates = house.updates.filter(u => u.id !== updateId);
+            renderHouseDetailTimeline();
+            renderAdminHousesDashboard();
+            showToast('ลบรายการอัปเดตเรียบร้อยแล้วค่ะ');
+        }
+
+        function openAddHouseModal() {
+            if (appState.currentRole !== 'main_admin') return;
+            document.getElementById('newHouseNumberInput').value = '';
+            openModal('addHouseModal');
+        }
+
+        function handleCreateHouse(e) {
+            e.preventDefault();
+            const num = document.getElementById('newHouseNumberInput').value.trim();
+            const note = document.getElementById('newHouseNoteInput').value.trim() || 'บริการบ้านแชร์ Peemy store';
+            const initStatus = document.getElementById('newHouseInitialStatus').value;
+
+            if (!num) return;
+
+            const exists = appState.houses.some(h => h.houseNumber.toLowerCase() === num.toLowerCase());
+            if (exists) {
+                showToast(`มีเลขบ้าน ${num} อยู่ในระบบแล้วค่ะ`, 'error');
+                return;
+            }
+
+            const defaultIssueMap = {
+                'GREEN': 'เมลใช้งานได้ปกติ',
+                'ORANGE': 'เมลโดนปิด กำลังรอยื่นอุทธรณ์',
+                'RED': 'แอคติดยืนยัน รอการตรวจสอบ'
+            };
+
+            appState.houses.unshift({
+                houseNumber: num,
+                serviceName: note,
+                updates: [
+                    {
+                        id: 'upd-' + Date.now(),
+                        status: initStatus,
+                        issue: defaultIssueMap[initStatus],
+                        timeText: getFormattedAutoTime(),
+                        adminName: '💖 แอดมินหลัก'
+                    }
+                ]
+            });
+
+            closeModal('addHouseModal');
+            renderAdminHousesDashboard();
+            showToast(`เพิ่มบ้านเลขที่ ${num} เข้าระบบเรียบร้อยแล้วค่ะ 🏠`);
+        }
+
+        function deleteCurrentHouse() {
+            if (appState.currentRole !== 'main_admin') return;
+            const targetNum = appState.activeHouseNumber;
+            if (appState.houses.length <= 1) {
+                showToast('ต้องมีบ้านอย่างน้อย 1 หลังในระบบเพื่อการทดสอบค่ะ', 'error');
+                return;
+            }
+
+            appState.houses = appState.houses.filter(h => h.houseNumber !== targetNum);
+            showHomeView();
+            showToast(`ลบบ้านเลขที่ ${targetNum} ออกจากระบบแล้วค่ะ`);
+        }
+
+        function openSiteSettingsModal() {
+            if (appState.currentRole !== 'main_admin') return;
+            document.getElementById('settingMarqueeInput').value = appState.siteConfig.marqueeText;
+            document.getElementById('settingBannerUrlInput').value = appState.siteConfig.bannerUrl;
+            openModal('siteSettingsModal');
+        }
+
+        function saveSiteSettings(e) {
+            e.preventDefault();
+            const marquee = document.getElementById('settingMarqueeInput').value.trim();
+            const banner = document.getElementById('settingBannerUrlInput').value.trim();
+
+            if (marquee) {
+                appState.siteConfig.marqueeText = marquee;
+                document.getElementById('marqueeTextDisplay').textContent = marquee;
+            }
+            if (banner) {
+                appState.siteConfig.bannerUrl = banner;
+                document.getElementById('mainBannerImg').src = banner;
+            }
+
+            closeModal('siteSettingsModal');
+            showToast('อัปเดตแบนเนอร์และข้อความวิ่งเรียบร้อยแล้วค่ะ 🎀');
+        }
+
+        function openEditShowcaseModal(index) {
+            if (appState.currentRole !== 'main_admin') return;
+            const item = appState.showcaseItems[index];
+            if (!item) return;
+
+            document.getElementById('editShowcaseIndex').value = index;
+            document.getElementById('editShowcaseNumLabel').textContent = index + 1;
+            document.getElementById('editShowcaseImg').value = item.imgUrl;
+            openModal('editShowcaseModal');
+        }
+
+        function saveShowcaseCard(e) {
+            e.preventDefault();
+            const idx = parseInt(document.getElementById('editShowcaseIndex').value, 10);
+            const img = document.getElementById('editShowcaseImg').value.trim() || `https://placehold.co/800x800/FFBFCA/78443E?text=Peemy+Pic+${idx+1}`;
+
+            if (appState.showcaseItems[idx]) {
+                appState.showcaseItems[idx].imgUrl = img;
+                renderShowcaseGrid();
+                closeModal('editShowcaseModal');
+                showToast(`อัปเดตรูปหน้าหลักช่องที่ ${idx + 1} เรียบร้อยแล้วค่ะ 🖼️`);
+            }
+        }
+
+        function openModal(id) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            el.classList.remove('hidden');
+            el.classList.add('flex');
+        }
+
+        function closeModal(id) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            el.classList.add('hidden');
+            el.classList.remove('flex');
+        }
+
+        function initApp() {
+            renderShowcaseGrid();
+            renderAdminHousesDashboard();
+            renderHouseDetailTimeline();
+        }
+
+        initApp();
+        document.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+</html>

@@ -323,7 +323,7 @@
                     </span>
                     <input type="text" 
                            id="houseSearchInput" 
-                           placeholder="พิมพ์เลขบ้านของคุณที่นี่เลยนะคะ..." 
+                           placeholder="พิมพ์เลขบ้านของคุณ" 
                            autocomplete="off"
                            oninput="handleSearchSuggestions(this.value)"
                            class="w-full bg-transparent text-[#78443E] placeholder-[#9F6963]/70 font-cute font-semibold text-sm sm:text-base focus:outline-none py-2">
@@ -391,18 +391,6 @@
                 </div>
             </div>
 
-            <!-- [องค์ประกอบที่ 4]: กรอบรูปภาพหน้าหลัก 4 ช่อง -->
-            <div class="pt-1">
-                <div class="main-admin-only hidden text-right mb-2 px-1">
-                    <span class="inline-block text-xs text-[#78443E] bg-[#FCE5C2]/90 px-3 py-1 rounded-full border border-[#FFBFCA] font-cute font-bold">
-                        💡 แอดมินหลัก: กดปุ่ม "เปลี่ยนรูป" บนมุมขวาของแต่ละกรอบได้ค่ะ (ขนาดแนะนำ 800 x 800 px อัตราส่วน 1:1)
-                    </span>
-                </div>
-
-                <div id="showcaseGrid" class="grid grid-cols-2 gap-3.5 sm:gap-6">
-                </div>
-            </div>
-
         </section>
 
         <!-- ======================================================== -->
@@ -434,23 +422,14 @@
                             <span id="detailHouseServiceText">YouTube Premium Family</span>
                         </span>
                     </div>
-
-                    <div class="admin-only hidden flex flex-wrap items-center justify-center gap-2 z-10 pt-0.5">
-                        <button onclick="openAddUpdateModal()" class="px-4 py-1.5 rounded-full bg-[#78443E] hover:bg-[#9F6963] text-[#F9F1DC] font-cute font-bold text-xs sm:text-sm shadow-sm transition-all flex items-center gap-1.5">
-                            <i class="fa-solid fa-plus-circle text-[#FCB1C3]"></i> อัปเดตสถานะปัญหา
-                        </button>
-                        <button onclick="deleteCurrentHouse()" class="main-admin-only hidden px-3 py-1.5 rounded-full bg-red-100 hover:bg-red-200 text-red-700 font-cute font-bold text-xs transition-all border border-red-300" title="ลบบ้านนี้">
-                            <i class="fa-solid fa-trash-can"></i> ลบบ้าน
-                        </button>
-                    </div>
                 </div>
             </div>
 
-            <!-- แผงอัปเดตด่วนสำหรับแอดมิน -->
+            <!-- แผงอัปเดตด่วนสำหรับแอดมิน (รวมปุ่มอัปเดตและลบบ้านไว้ที่เดียวกัน) -->
             <div id="adminQuickUpdatePanel" class="admin-only hidden bg-gradient-to-r from-[#FCE5C2]/80 via-white to-[#FFBFCA]/35 rounded-3xl p-4 sm:p-5 border-2 border-[#FFBFCA] shadow-sm">
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-2xl bg-[#FCB1C3] flex items-center justify-center text-[#78443E] text-lg shadow-sm">
+                        <div class="w-10 h-10 rounded-2xl bg-[#FCB1C3] flex items-center justify-center text-[#78443E] text-lg shadow-sm flex-shrink-0">
                             <i class="fa-solid fa-pen-fancy"></i>
                         </div>
                         <div>
@@ -462,9 +441,14 @@
                             </p>
                         </div>
                     </div>
-                    <button onclick="openAddUpdateModal()" class="px-5 py-2.5 rounded-2xl bg-[#78443E] hover:bg-[#9F6963] text-[#F9F1DC] font-cute font-bold text-xs sm:text-sm shadow-md transition-all flex-shrink-0">
-                        + เพิ่มรายการอัปเดตใหม่
-                    </button>
+                    <div class="flex flex-wrap items-center gap-2 flex-shrink-0">
+                        <button onclick="openAddUpdateModal()" class="flex-1 sm:flex-initial justify-center px-5 py-2.5 rounded-2xl bg-[#78443E] hover:bg-[#9F6963] text-[#F9F1DC] font-cute font-bold text-xs sm:text-sm shadow-md transition-all flex items-center gap-1.5">
+                            <i class="fa-solid fa-plus-circle text-[#FCB1C3]"></i> อัปเดตสถานะปัญหา
+                        </button>
+                        <button onclick="deleteCurrentHouse()" class="main-admin-only hidden px-4 py-2.5 rounded-2xl bg-red-100 hover:bg-red-200 text-red-700 font-cute font-bold text-xs sm:text-sm transition-all border border-red-300 flex items-center justify-center gap-1.5" title="ลบบ้านนี้">
+                            <i class="fa-solid fa-trash-can"></i> ลบบ้าน
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -587,16 +571,12 @@
             <!-- ข้อมูลขนาดรูปภาพที่แนะนำสำหรับหลังบ้าน -->
             <div class="bg-[#FCE5C2]/60 rounded-2xl p-3.5 border border-[#9F6963]/25 text-xs space-y-1.5">
                 <div class="font-cute font-bold text-[#78443E] flex items-center gap-1.5">
-                    <i class="fa-solid fa-ruler-combined text-[#9F6963]"></i> ขนาดรูปภาพที่แนะนำสำหรับตกแต่งหน้าเว็บ:
+                    <i class="fa-solid fa-ruler-combined text-[#9F6963]"></i> ขนาดรูปภาพแบนเนอร์ที่แนะนำ:
                 </div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-0.5 text-[11px] text-[#78443E]">
-                    <div class="bg-white/80 rounded-xl p-2 border border-[#FFBFCA]">
-                        <span class="font-bold">🖼️ รูปแบนเนอร์ด้านบน:</span><br>
+                <div class="pt-0.5 text-[11px] text-[#78443E]">
+                    <div class="bg-white/80 rounded-xl p-2.5 border border-[#FFBFCA]">
+                        <span class="font-bold">🖼️ รูปแบนเนอร์ด้านบน:</span>
                         ขนาด <strong>1200 x 480 px</strong> (อัตราส่วน 5:2 หรือ 16:9 แนวนอน)
-                    </div>
-                    <div class="bg-white/80 rounded-xl p-2 border border-[#FFBFCA]">
-                        <span class="font-bold">🌸 รูปหน้าหลัก 4 ช่อง:</span><br>
-                        ขนาด <strong>800 x 800 px</strong> (อัตราส่วน 1:1 จัตุรัส)
                     </div>
                 </div>
             </div>
@@ -804,8 +784,6 @@
                     <label class="block font-cute font-bold text-[#78443E] mb-1">สถานะเริ่มต้นของบ้าน:</label>
                     <select id="newHouseInitialStatus" class="w-full rounded-2xl border-2 border-[#FFBFCA] bg-white p-3 text-[#78443E] font-cute font-bold">
                         <option value="GREEN">🟢 เมลใช้งานได้ปกติ</option>
-                        <option value="ORANGE">🟠 เมลโดนปิด กำลังรอยื่นอุทธรณ์</option>
-                        <option value="RED">🔴 แอคติดยืนยัน รอการตรวจสอบ</option>
                     </select>
                 </div>
                 <div class="flex justify-end gap-2 pt-2">
